@@ -1,0 +1,15 @@
+@model Sehir
+@* Ekle ve Düzenle sayfalarının ortak alanları *@
+<div asp-validation-summary="ModelOnly" class="alert alert-danger py-2"></div>
+<div class="row g-3">
+    <div class="col-12 col-sm-8">
+        <label asp-for="Ad" class="form-label"></label>
+        <input asp-for="Ad" class="form-control" />
+        <span asp-validation-for="Ad" class="text-danger small"></span>
+    </div>
+    <div class="col-12 col-sm-4">
+        <label asp-for="PlakaKodu" class="form-label"></label>
+        <input asp-for="PlakaKodu" class="form-control" min="1" max="81" />
+        <span asp-validation-for="PlakaKodu" class="text-danger small"></span>
+    </div>
+</div>

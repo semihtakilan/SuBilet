@@ -36,7 +36,22 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = "/Hesap/ErisimEngellendi";
 });
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+    // Model binding'in İngilizce hata mesajları (ör. sayı alanına harf girilince) Türkçe olsun
+    var mesajlar = options.ModelBindingMessageProvider;
+    mesajlar.SetValueIsInvalidAccessor(deger => $"'{deger}' geçerli bir değer değil.");
+    mesajlar.SetAttemptedValueIsInvalidAccessor((deger, alan) => $"'{deger}' değeri {alan} için geçerli değil.");
+    mesajlar.SetNonPropertyAttemptedValueIsInvalidAccessor(deger => $"'{deger}' geçerli bir değer değil.");
+    mesajlar.SetUnknownValueIsInvalidAccessor(alan => $"{alan} için girilen değer geçerli değil.");
+    mesajlar.SetNonPropertyUnknownValueIsInvalidAccessor(() => "Girilen değer geçerli değil.");
+    mesajlar.SetValueMustBeANumberAccessor(alan => $"{alan} alanına sayı girin.");
+    mesajlar.SetNonPropertyValueMustBeANumberAccessor(() => "Bu alana sayı girin.");
+    mesajlar.SetValueMustNotBeNullAccessor(alan => $"{alan} boş bırakılamaz.");
+    mesajlar.SetMissingBindRequiredValueAccessor(alan => $"{alan} için değer girilmedi.");
+    mesajlar.SetMissingKeyOrValueAccessor(() => "Değer zorunludur.");
+    mesajlar.SetMissingRequestBodyRequiredValueAccessor(() => "İstek gövdesi boş olamaz.");
+});
 
 var app = builder.Build();
 
@@ -67,6 +82,12 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
+
+// Yönetim paneli: /Admin/{controller}/{action}/{id?}
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Panel}/{action=Index}/{id?}")
+    .WithStaticAssets();
 
 app.MapControllerRoute(
     name: "default",
