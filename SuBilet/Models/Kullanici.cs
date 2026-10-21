@@ -19,5 +19,8 @@ public class Kullanici : IdentityUser
     public int? FirmaId { get; set; }
     public Firma? Firma { get; set; }
 
+    public List<Bilet> Biletler { get; set; } = new();
+    public List<Odeme> Odemeler { get; set; } = new();
+
     public string AdSoyad => $"{Ad} {Soyad}";
 }

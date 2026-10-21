@@ -15,4 +15,8 @@ public class Sehir
     [Range(1, 81, ErrorMessage = "Plaka kodu 1 ile 81 arasında olmalıdır.")]
     [Display(Name = "Plaka Kodu")]
     public int? PlakaKodu { get; set; }
+
+    // Bir şehir hem kalkış hem varış şehri olabilir: iki ayrı ilişki
+    public List<Sefer> KalkisSeferleri { get; set; } = new();
+    public List<Sefer> VarisSeferleri { get; set; } = new();
 }

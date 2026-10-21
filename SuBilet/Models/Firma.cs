@@ -31,5 +31,7 @@ public class Firma
     [Display(Name = "Aktif")]
     public bool AktifMi { get; set; } = true;
 
+    public List<Otobus> Otobusler { get; set; } = new();
+    public List<Sefer> Seferler { get; set; } = new();
     public List<Kullanici> Kullanicilar { get; set; } = new();
 }
