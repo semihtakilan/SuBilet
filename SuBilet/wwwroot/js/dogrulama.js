@@ -28,3 +28,38 @@ $.validator.methods.range = function (value, element, param) {
     var sayi = sayiyaCevir(value);
     return sayi >= Number(param[0]) && sayi <= Number(param[1]);
 };
+
+// [TcKimlikNo] attribute'unun tarayıcı tarafı (kurallar Dogrulama/TcKimlikNoAttribute.cs ile aynı)
+function tcKimlikNoGecerliMi(tc) {
+    tc = String(tc).trim();
+    if (!/^[1-9][0-9]{10}$/.test(tc)) return false;
+    var h = tc.split("").map(Number);
+    var tekler = h[0] + h[2] + h[4] + h[6] + h[8];
+    var ciftler = h[1] + h[3] + h[5] + h[7];
+    var onuncu = (((tekler * 7 - ciftler) % 10) + 10) % 10;
+    var toplam = 0;
+    for (var i = 0; i < 10; i++) toplam += h[i];
+    return h[9] === onuncu && h[10] === toplam % 10;
+}
+
+$.validator.addMethod("tckimlikno", function (value, element) {
+    return this.optional(element) || tcKimlikNoGecerliMi(value);
+});
+$.validator.unobtrusive.adapters.addBool("tckimlikno");
+
+// [TelefonNo] attribute'unun tarayıcı tarafı (kurallar Dogrulama/TelefonNoAttribute.cs ile aynı)
+function telefonGecerliMi(telefon, sadeceCep) {
+    var sade = String(telefon).replace(/[\s\-().]/g, "");
+    return sadeceCep
+        ? /^(?:\+90|90|0)?5\d{9}$/.test(sade)
+        : /^(?:(?:\+90|90|0)?[2-58]\d{9}|444\d{4})$/.test(sade);
+}
+
+$.validator.addMethod("telefonno", function (value, element, param) {
+    return this.optional(element) || telefonGecerliMi(value, param.sadeceCep);
+});
+$.validator.unobtrusive.adapters.add("telefonno", ["sadececep"], function (options) {
+    // Kural değeri nesne olmalı: false verilirse jQuery Validation kuralı tamamen kapatır
+    options.rules["telefonno"] = { sadeceCep: options.params.sadececep === "true" };
+    options.messages["telefonno"] = options.message;
+});

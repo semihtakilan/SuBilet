@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using SuBilet.Dogrulama;
 
 namespace SuBilet.Models;
 
@@ -18,7 +19,7 @@ public class Firma
 
     [Required(ErrorMessage = "Telefon zorunludur.")]
     [StringLength(20)]
-    [Phone(ErrorMessage = "Geçerli bir telefon numarası girin.")]
+    [TelefonNo(ErrorMessage = "Geçerli bir telefon numarası girin (0212 555 01 01 ya da 444 01 01).")]
     [Display(Name = "Telefon")]
     public string Telefon { get; set; } = "";
 

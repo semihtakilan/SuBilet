@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using SuBilet.Dogrulama;
 
 namespace SuBilet.Models.ViewModels;
 
@@ -21,7 +22,7 @@ public class KayitViewModel
     public string Eposta { get; set; } = "";
 
     [Required(ErrorMessage = "Cep telefonu zorunludur.")]
-    [Phone(ErrorMessage = "Geçerli bir telefon numarası girin.")]
+    [TelefonNo(SadeceCep = true, ErrorMessage = "Geçerli bir cep telefonu girin (05XX XXX XX XX).")]
     [Display(Name = "Cep Telefonu")]
     public string Telefon { get; set; } = "";
 

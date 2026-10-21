@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using SuBilet.Dogrulama;
 
 namespace SuBilet.Models;
 
@@ -37,6 +38,7 @@ public class Bilet
 
     [Required(ErrorMessage = "T.C. kimlik no zorunludur.")]
     [StringLength(11)]
+    [TcKimlikNo]
     [Display(Name = "T.C. Kimlik No")]
     public string TcKimlikNo { get; set; } = "";
 
