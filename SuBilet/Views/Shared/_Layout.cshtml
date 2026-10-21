@@ -27,12 +27,14 @@
                             <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Otobüs Bileti</a>
                         </li>
                     </ul>
+                    <partial name="_KullaniciMenusu" />
                 </div>
             </div>
         </nav>
     </header>
 
     <main role="main" class="flex-grow-1">
+        <partial name="_Mesajlar" />
         @RenderBody()
     </main>
 

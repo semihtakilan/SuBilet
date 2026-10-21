@@ -1,0 +1,20 @@
+@* Yönlendirmeden sonra TempData ile taşınan bilgi ve hata mesajları *@
+@if (TempData["Mesaj"] != null || TempData["Hata"] != null)
+{
+    <div class="container mt-3">
+        @if (TempData["Mesaj"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show mb-0" role="alert">
+                @TempData["Mesaj"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Kapat"></button>
+            </div>
+        }
+        @if (TempData["Hata"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show mb-0" role="alert">
+                @TempData["Hata"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Kapat"></button>
+            </div>
+        }
+    </div>
+}

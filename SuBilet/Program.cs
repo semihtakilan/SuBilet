@@ -1,7 +1,9 @@
 using System.Globalization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using SuBilet.Data;
+using SuBilet.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,9 +15,33 @@ var baglantiDizesi = builder.Configuration.GetConnectionString("SuBiletDb")
 // Servisler
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(baglantiDizesi));
+
+builder.Services.AddIdentity<Kullanici, IdentityRole>(options =>
+    {
+        options.User.RequireUniqueEmail = true;
+        options.Password.RequiredLength = 8;
+        options.Password.RequireNonAlphanumeric = false;
+        options.Lockout.MaxFailedAccessAttempts = 5;
+        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+    })
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddErrorDescriber<TurkceIdentityHatalari>()
+    .AddClaimsPrincipalFactory<KullaniciClaimsFactory>()
+    .AddDefaultTokenProviders();
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Hesap/Giris";
+    options.LogoutPath = "/Hesap/Cikis";
+    options.AccessDeniedPath = "/Hesap/ErisimEngellendi";
+});
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
+
+// Roller ve varsayılan yönetici (yoksa oluşturulur)
+await KimlikVerisi.TohumlaAsync(app.Services);
 
 // İstek hattı (middleware sırası önemlidir)
 if (!app.Environment.IsDevelopment())
@@ -37,6 +63,7 @@ app.UseRequestLocalization(new RequestLocalizationOptions
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();

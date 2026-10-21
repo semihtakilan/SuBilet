@@ -1,0 +1,45 @@
+@model SuBilet.Models.ViewModels.GirisViewModel
+@{
+    ViewData["Title"] = "Giriş Yap";
+}
+
+<div class="container py-4 py-md-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-sm-9 col-md-6 col-lg-5">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <h1 class="h4 mb-4">Giriş Yap</h1>
+
+                    <form asp-action="Giris" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2" role="alert"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="Eposta" class="form-label"></label>
+                            <input asp-for="Eposta" class="form-control" autocomplete="username" />
+                            <span asp-validation-for="Eposta" class="text-danger small"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Sifre" class="form-label"></label>
+                            <input asp-for="Sifre" class="form-control" autocomplete="current-password" />
+                            <span asp-validation-for="Sifre" class="text-danger small"></span>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input asp-for="BeniHatirla" class="form-check-input" />
+                            <label asp-for="BeniHatirla" class="form-check-label"></label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">Giriş Yap</button>
+                    </form>
+
+                    <p class="text-center small mt-3 mb-0">
+                        Hesabın yok mu? <a asp-action="Kayit">Üye ol</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

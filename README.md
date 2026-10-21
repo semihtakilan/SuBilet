@@ -32,6 +32,9 @@ dotnet tool install --global dotnet-ef
 cd SuBilet
 dotnet user-secrets set "ConnectionStrings:SuBiletDb" "Host=localhost;Port=5432;Database=subilet;Username=postgres;Password=SIFRENIZ"
 
+# Varsayılan yönetici (admin@subilet.com) için şifre; uygulama ilk açılışta hesabı oluşturur
+dotnet user-secrets set "VarsayilanYonetici:Sifre" "EnAz8Karakter1"
+
 # 3) Veritabanını migration'larla oluşturun
 dotnet ef database update
 

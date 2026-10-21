@@ -30,4 +30,6 @@ public class Firma
 
     [Display(Name = "Aktif")]
     public bool AktifMi { get; set; } = true;
+
+    public List<Kullanici> Kullanicilar { get; set; } = new();
 }
