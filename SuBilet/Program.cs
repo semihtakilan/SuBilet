@@ -1,6 +1,16 @@
+using Microsoft.EntityFrameworkCore;
+using SuBilet.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
+// Bağlantı dizesi depoda değil, User Secrets'ta tutulur (README > Kurulum).
+var baglantiDizesi = builder.Configuration.GetConnectionString("SuBiletDb")
+    ?? throw new InvalidOperationException(
+        "'SuBiletDb' bağlantı dizesi bulunamadı. README'deki User Secrets adımını uygulayın.");
+
 // Servisler
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(baglantiDizesi));
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();

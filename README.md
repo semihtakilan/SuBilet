@@ -20,6 +20,27 @@ BLM4581 Ağ Tabanlı Teknolojiler ve Uygulamaları dersi dönem projesi (2026–
 - Bootstrap 5, jQuery Validation Unobtrusive
 - Swashbuckle (Swagger UI), Chart.js, QuestPDF + QRCoder (ilerleyen haftalarda)
 
+## Kurulum
+
+Gerekenler: [.NET 10 SDK](https://dotnet.microsoft.com/download), PostgreSQL (14 ve üstü), `dotnet-ef` aracı.
+
+```bash
+# 1) dotnet-ef aracını kurun (bir kez)
+dotnet tool install --global dotnet-ef
+
+# 2) Bağlantı dizesini User Secrets'a yazın (depoya girmez)
+cd SuBilet
+dotnet user-secrets set "ConnectionStrings:SuBiletDb" "Host=localhost;Port=5432;Database=subilet;Username=postgres;Password=SIFRENIZ"
+
+# 3) Veritabanını migration'larla oluşturun
+dotnet ef database update
+
+# 4) Uygulamayı çalıştırın
+dotnet watch
+```
+
+Visual Studio kullananlar 2. adım için projeye sağ tık → **Manage User Secrets**, 3. adım için Package Manager Console'da `Update-Database` kullanabilir.
+
 ## Proje yapısı
 
 ```
