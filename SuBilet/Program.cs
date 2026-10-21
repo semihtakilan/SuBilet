@@ -1,3 +1,5 @@
+using System.Globalization;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using SuBilet.Data;
 
@@ -23,6 +25,16 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Tarih, para ve ondalık sayılar her bilgisayarda Türkçe biçimde okunup yazılsın
+var turkce = new CultureInfo("tr-TR");
+app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture(turkce),
+    SupportedCultures = new List<CultureInfo> { turkce },
+    SupportedUICultures = new List<CultureInfo> { turkce }
+});
+
 app.UseRouting();
 
 app.UseAuthorization();

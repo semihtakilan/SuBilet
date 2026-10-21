@@ -1,8 +1,84 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model SuBilet.Models.ViewModels.SeferAramaViewModel
+@{
+    ViewData["Title"] = "Otobüs Bileti";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<section class="sb-hero">
+    <div class="container py-4 py-md-5">
+        <h1 class="sb-hero-baslik mb-2">Otobüs biletini <span class="text-nowrap">ŞuBilet'te</span> bul</h1>
+        <p class="sb-hero-alt mb-4">Tüm firmaların seferlerini karşılaştır, koltuğunu seç, biletini dakikalar içinde al.</p>
+
+        <form asp-action="Ara" method="get" class="sb-arama-kart" novalidate>
+            <div class="row g-2 g-lg-3 align-items-start">
+                <div class="col-12 col-lg">
+                    <label asp-for="KalkisSehirId" class="form-label"></label>
+                    <select asp-for="KalkisSehirId" asp-items="Model.Sehirler" class="form-select form-select-lg">
+                        <option value="">Şehir seçin</option>
+                    </select>
+                    <span asp-validation-for="KalkisSehirId" class="text-danger small"></span>
+                </div>
+
+                <div class="col-12 col-lg-auto text-center sb-degistir-kutu">
+                    <button type="button" class="btn btn-light sb-degistir" id="sehirDegistir"
+                            title="Kalkış ve varışı değiştir" aria-label="Kalkış ve varışı değiştir">&#8646;</button>
+                </div>
+
+                <div class="col-12 col-lg">
+                    <label asp-for="VarisSehirId" class="form-label"></label>
+                    <select asp-for="VarisSehirId" asp-items="Model.Sehirler" class="form-select form-select-lg">
+                        <option value="">Şehir seçin</option>
+                    </select>
+                    <span asp-validation-for="VarisSehirId" class="text-danger small"></span>
+                </div>
+
+                <div class="col-12 col-md-7 col-lg-3">
+                    <label asp-for="Tarih" class="form-label"></label>
+                    <input asp-for="Tarih" class="form-control form-control-lg" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                    <div class="mt-1 d-flex gap-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" data-gun="0">Bugün</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" data-gun="1">Yarın</button>
+                    </div>
+                    <span asp-validation-for="Tarih" class="text-danger small"></span>
+                </div>
+
+                <div class="col-12 col-md-5 col-lg-auto sb-ara-kutu">
+                    <button type="submit" class="btn btn-warning btn-lg w-100 fw-semibold">Sefer Ara</button>
+                </div>
+            </div>
+        </form>
+
+        @if (ViewData["AramaOzeti"] != null)
+        {
+            <div class="alert alert-light mt-3 mb-0" role="status">
+                <strong>@ViewData["AramaOzeti"]</strong> için arama alındı. Sefer listesi bir sonraki aşamada eklenecek.
+            </div>
+        }
+    </div>
+</section>
+
+<section class="container mt-5">
+    <div class="row g-3 g-md-4">
+        <div class="col-12 col-md-4">
+            <div class="sb-ozellik h-100">
+                <h2 class="h5">Tüm firmalar tek yerde</h2>
+                <p class="mb-0 text-body-secondary">Farklı firmaların seferlerini fiyata, saate ve firmaya göre karşılaştır.</p>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="sb-ozellik h-100">
+                <h2 class="h5">Koltuğunu kendin seç</h2>
+                <p class="mb-0 text-body-secondary">2+1 ve 2+2 otobüslerin koltuk haritasından istediğin koltuğu seç.</p>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="sb-ozellik h-100">
+                <h2 class="h5">PNR ile kolay takip</h2>
+                <p class="mb-0 text-body-secondary">Biletini PNR koduyla sorgula, iptal et ya da PDF olarak indir.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

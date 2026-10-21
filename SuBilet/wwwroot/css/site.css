@@ -1,5 +1,17 @@
+/* ŞuBilet ortak stilleri */
+:root {
+  --sb-lacivert: #17375e;
+  --sb-lacivert-koyu: #0f2643;
+  --sb-turuncu: #f5a524;
+  --sb-zemin: #f4f6f9;
+  --bs-primary: #1f4e8c;
+  --bs-primary-rgb: 31, 78, 140;
+  --bs-link-color: #1f4e8c;
+  --bs-link-color-rgb: 31, 78, 140;
+}
+
 html {
-  font-size: 14px;
+  font-size: 15px;
 }
 
 @media (min-width: 768px) {
@@ -8,24 +20,120 @@ html {
   }
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
-}
-
 body {
-  margin-bottom: 60px;
+  background-color: var(--sb-zemin);
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+.btn-primary {
+  --bs-btn-bg: #1f4e8c;
+  --bs-btn-border-color: #1f4e8c;
+  --bs-btn-hover-bg: #183f72;
+  --bs-btn-hover-border-color: #183f72;
+  --bs-btn-active-bg: #143560;
+  --bs-btn-active-border-color: #143560;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+.btn:focus, .btn:active:focus, .form-control:focus, .form-select:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem rgba(31, 78, 140, .45);
+}
+
+/* Üst menü */
+.sb-navbar {
+  background-color: var(--sb-lacivert);
+}
+
+.sb-navbar .navbar-brand {
+  font-size: 1.35rem;
+  color: #fff;
+}
+
+.sb-navbar .navbar-brand svg {
+  color: var(--sb-turuncu);
+}
+
+/* Ana sayfa vitrini ve arama kartı */
+.sb-hero {
+  background: linear-gradient(135deg, var(--sb-lacivert) 0%, #24508a 100%);
+  color: #fff;
+}
+
+.sb-hero-baslik {
+  font-size: clamp(1.6rem, 4vw, 2.5rem);
+  font-weight: 700;
+}
+
+.sb-hero-alt {
+  color: rgba(255, 255, 255, .8);
+  max-width: 40rem;
+}
+
+.sb-arama-kart {
+  background: #fff;
+  color: #212529;
+  border-radius: 1rem;
+  padding: 1rem;
+  box-shadow: 0 .75rem 2rem rgba(0, 0, 0, .18);
+}
+
+@media (min-width: 768px) {
+  .sb-ara-kutu {
+    padding-top: 2rem;
+  }
+}
+
+@media (min-width: 992px) {
+  .sb-arama-kart {
+    padding: 1.5rem;
+  }
+
+  .sb-degistir-kutu {
+    padding-top: 2rem;
+  }
+}
+
+.sb-degistir {
+  border-radius: 50%;
+  width: 2.75rem;
+  height: 2.75rem;
+  font-size: 1.25rem;
+  line-height: 1;
+  border: 1px solid #dee2e6;
+}
+
+@media (max-width: 991.98px) {
+  .sb-degistir {
+    transform: rotate(90deg);
+  }
+}
+
+.sb-ozellik {
+  background: #fff;
+  border-radius: .75rem;
+  padding: 1.25rem;
+  border: 1px solid #e3e7ee;
+}
+
+/* Alt bilgi */
+.sb-footer {
+  background-color: var(--sb-lacivert-koyu);
+  color: rgba(255, 255, 255, .75);
+}
+
+.sb-footer a {
+  color: rgba(255, 255, 255, .85);
+  text-decoration: none;
+}
+
+.sb-footer a:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.sb-footer hr {
+  border-color: rgba(255, 255, 255, .2);
+}
+
+/* Doğrulama hata kutuları */
+.input-validation-error {
+  border-color: #dc3545;
 }

@@ -1,4 +1,19 @@
-﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
+﻿// Ana sayfa: kalkış/varış şehirlerini yer değiştir
+$(function () {
+    $("#sehirDegistir").on("click", function () {
+        var kalkis = $("#KalkisSehirId");
+        var varis = $("#VarisSehirId");
+        var gecici = kalkis.val();
+        kalkis.val(varis.val());
+        varis.val(gecici);
+    });
 
-// Write your JavaScript code.
+    // "Bugün" / "Yarın" düğmeleri tarih kutusunu doldurur
+    $("[data-gun]").on("click", function () {
+        var tarih = new Date();
+        tarih.setDate(tarih.getDate() + parseInt($(this).data("gun"), 10));
+        var ay = String(tarih.getMonth() + 1).padStart(2, "0");
+        var gun = String(tarih.getDate()).padStart(2, "0");
+        $("#Tarih").val(tarih.getFullYear() + "-" + ay + "-" + gun).trigger("change");
+    });
+});
