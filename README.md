@@ -20,49 +20,114 @@ BLM4581 Ağ Tabanlı Teknolojiler ve Uygulamaları dersi dönem projesi (2026–
 - Bootstrap 5, jQuery Validation Unobtrusive
 - Swashbuckle (Swagger UI), Chart.js, QuestPDF + QRCoder (ilerleyen haftalarda)
 
-## Kurulum
+## Kurulum (sıfırdan)
 
-Gerekenler: [.NET 10 SDK](https://dotnet.microsoft.com/download), PostgreSQL (14 ve üstü), `dotnet-ef` aracı.
+### 1. Gerekenleri kurun (bir kez)
+
+- **.NET 10 SDK** – [dotnet.microsoft.com/download](https://dotnet.microsoft.com/download). Kontrol: `dotnet --version` 10 ile başlamalı.
+- **PostgreSQL**
+  - Mac: `brew install postgresql@17`
+  - Windows: [postgresql.org/download](https://www.postgresql.org/download/) kurulum programı. Kurulumda `postgres` kullanıcısına bir şifre verin, portu 5432 bırakın.
+- **EF Core aracı:** `dotnet tool install --global dotnet-ef`
+
+### 2. PostgreSQL'i başlatın
+
+- Mac: `brew services run postgresql@17` (bilgisayar her açıldığında; hep açık kalsın isterseniz `brew services start postgresql@17`)
+- Windows: Servis olarak kendiliğinden çalışır.
+
+### 3. Projeyi indirin
 
 ```bash
-# 1) dotnet-ef aracını kurun (bir kez)
-dotnet tool install --global dotnet-ef
-
-# 2) Bağlantı dizesini User Secrets'a yazın (depoya girmez)
-cd SuBilet
-dotnet user-secrets set "ConnectionStrings:SuBiletDb" "Host=localhost;Port=5432;Database=subilet;Username=postgres;Password=SIFRENIZ"
-
-# Varsayılan yönetici (admin@subilet.com) için şifre; uygulama ilk açılışta hesabı oluşturur
-dotnet user-secrets set "VarsayilanYonetici:Sifre" "EnAz8Karakter1"
-
-# 3) Veritabanını migration'larla oluşturun
-dotnet ef database update
-
-# 4) Uygulamayı çalıştırın
-dotnet watch
+git clone https://github.com/semihtakilan/SuBilet.git
+cd SuBilet/SuBilet
 ```
 
-Visual Studio kullananlar 2. adım için projeye sağ tık → **Manage User Secrets**, 3. adım için Package Manager Console'da `Update-Database` kullanabilir.
+### 4. Gizli ayarları girin (User Secrets – depoya girmez)
+
+Bağlantı dizesi:
+
+```bash
+# Mac (Homebrew): kullanıcı adı Mac kullanıcı adınızdır, şifre yoktur
+dotnet user-secrets set "ConnectionStrings:SuBiletDb" "Host=localhost;Port=5432;Database=subilet;Username=MAC_KULLANICI_ADINIZ"
+
+# Windows: kurulumda verdiğiniz postgres şifresi
+dotnet user-secrets set "ConnectionStrings:SuBiletDb" "Host=localhost;Port=5432;Database=subilet;Username=postgres;Password=SIFRENIZ"
+```
+
+Varsayılan yönetici (`admin@subilet.com`) şifresi. En az 8 karakter; büyük harf, küçük harf ve rakam içermeli:
+
+```bash
+dotnet user-secrets set "VarsayilanYonetici:Sifre" "SuBilet.2026"
+```
+
+### 5. Veritabanını oluşturun
+
+```bash
+dotnet ef database update
+```
+
+`subilet` veritabanı, tablolar, 81 il ve 5 örnek firma oluşturulur.
+
+### 6. Çalıştırın
+
+```bash
+dotnet run        # ya da dosya kaydettikçe yenilenmesi için: dotnet watch
+```
+
+Tarayıcıda **http://localhost:5214** adresini açın. İlk açılışta roller (Admin, FirmaYetkilisi, Yolcu) ve yönetici hesabı kendiliğinden oluşur.
+
+### 7. Giriş yapın
+
+`admin@subilet.com` ve 4. adımda verdiğiniz şifreyle giriş yapın; sağ üstteki adınıza tıklayınca **Yönetim Paneli** açılır. Kendi kendine üye olan kullanıcılar Yolcu rolündedir.
+
+### Visual Studio ile (Windows)
+
+1. `SuBilet.slnx` dosyasını açın.
+2. Projeye sağ tık → **Manage User Secrets** → aşağıdakini yapıştırın:
+   ```json
+   {
+     "ConnectionStrings": { "SuBiletDb": "Host=localhost;Port=5432;Database=subilet;Username=postgres;Password=SIFRENIZ" },
+     "VarsayilanYonetici": { "Sifre": "SuBilet.2026" }
+   }
+   ```
+3. Package Manager Console'da `Update-Database` çalıştırın.
+4. Ctrl+F5 ile başlatın.
+
+### Sık karşılaşılan hatalar
+
+| Hata | Sebep / çözüm |
+|---|---|
+| `'SuBiletDb' bağlantı dizesi bulunamadı` | 4. adım yapılmamış. |
+| `Connection refused` | PostgreSQL kapalı; 2. adım. |
+| `password authentication failed` | Bağlantı dizesindeki kullanıcı adı ya da şifre yanlış. |
+| `relation "AspNetRoles" does not exist` | 5. adım (`dotnet ef database update`) yapılmamış. |
+| Yönetici girişi olmuyor | Yönetici şifresi ilk çalıştırmadan önce verilmemiş ya da kurallara uymuyor. Şifreyi verip uygulamayı yeniden başlatın. |
+
+Veritabanını sıfırlamak için: `dotnet ef database drop` ardından `dotnet ef database update`.
 
 ## Proje yapısı
 
 ```
 ŞuBilet/
-├── SuBilet.slnx          # çözüm dosyası
-└── SuBilet/              # ASP.NET Core MVC projesi
-    ├── Controllers/
-    ├── Models/
+├── SuBilet.slnx                 # çözüm dosyası
+└── SuBilet/                     # ASP.NET Core MVC projesi
+    ├── Areas/Admin/             # yönetim paneli (yalnızca Admin rolü)
+    ├── Controllers/             # Home (ana sayfa, arama formu), Hesap (kayıt/giriş)
+    ├── Data/                    # AppDbContext, seed verisi, Identity ayarları
+    ├── Dogrulama/               # T.C. kimlik no ve telefon doğrulama attribute'ları
+    ├── Migrations/              # EF Core migration'ları
+    ├── Models/                  # varlıklar ve ViewModel'ler
     ├── Views/
-    └── wwwroot/
+    └── wwwroot/                 # css, js, kütüphaneler
 ```
 
 ## Haftalık ilerleme
 
 | Hafta | İş | Durum |
 |---|---|---|
-| 1 | Depo, MVC projesi, README; PostgreSQL + EF Core, Şehir/Firma ve ilk migration; ortak layout ve sefer arama formu | Devam ediyor |
-| 2 | Tüm varlıklar, Fluent API ilişkileri, seed verisi; Identity, roller, kayıt/giriş, özel doğrulamalar | – |
-| 3 | Yönetici paneli; Şehir, Firma, Otobüs, Sefer CRUD; kullanıcı rol atama | – |
+| 1 | Depo, MVC projesi, README; PostgreSQL + EF Core, Şehir/Firma ve ilk migration; ortak layout ve sefer arama formu | Tamamlandı |
+| 2 | Tüm varlıklar, Fluent API ilişkileri, 81 il + firma seed verisi; Identity, roller, varsayılan yönetici; kayıt/giriş, T.C. kimlik no ve telefon doğrulaması | Tamamlandı |
+| 3 | Yönetim paneli; Şehir, Firma, Otobüs, Sefer CRUD; kullanıcı rol atama | Devam ediyor (panel, Şehir ve Firma CRUD hazır) |
 | 4 | Sefer arama ve sonuç listesi; Web API (/api/seferler) + Swagger | – |
 | 5 | Koltuk durumu servisi, koltuk haritası, yolcu bilgileri formu | – |
 | 6 | Ödeme + bilet transaction'ı, simüle ödeme, PNR ve Biletlerim | – |
