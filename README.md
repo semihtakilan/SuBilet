@@ -78,7 +78,7 @@ Tarayıcıda **http://localhost:5214** adresini açın. İlk açılışta roller
 
 ### 7. Giriş yapın
 
-`admin@subilet.com` ve 4. adımda verdiğiniz şifreyle giriş yapın; sağ üstteki adınıza tıklayınca **Yönetim Paneli** açılır. Kendi kendine üye olan kullanıcılar Yolcu rolündedir.
+`admin@subilet.com` ve 4. adımda verdiğiniz şifreyle giriş yapın. Yönetici hesabı Admin rolündedir; yönetim paneli 3. haftada eklenecek. Kendi kendine üye olan kullanıcılar Yolcu rolündedir.
 
 ### Visual Studio ile (Windows)
 
@@ -111,7 +111,6 @@ Veritabanını sıfırlamak için: `dotnet ef database drop` ardından `dotnet e
 ŞuBilet/
 ├── SuBilet.slnx                 # çözüm dosyası
 └── SuBilet/                     # ASP.NET Core MVC projesi
-    ├── Areas/Admin/             # yönetim paneli (yalnızca Admin rolü)
     ├── Controllers/             # Home (ana sayfa, arama formu), Hesap (kayıt/giriş)
     ├── Data/                    # AppDbContext, seed verisi, Identity ayarları
     ├── Dogrulama/               # T.C. kimlik no ve telefon doğrulama attribute'ları
@@ -127,7 +126,7 @@ Veritabanını sıfırlamak için: `dotnet ef database drop` ardından `dotnet e
 |---|---|---|
 | 1 | Depo, MVC projesi, README; PostgreSQL + EF Core, Şehir/Firma ve ilk migration; ortak layout ve sefer arama formu | Tamamlandı |
 | 2 | Tüm varlıklar, Fluent API ilişkileri, 81 il + firma seed verisi; Identity, roller, varsayılan yönetici; kayıt/giriş, T.C. kimlik no ve telefon doğrulaması | Tamamlandı |
-| 3 | Yönetim paneli; Şehir, Firma, Otobüs, Sefer CRUD; kullanıcı rol atama | Devam ediyor (panel, Şehir ve Firma CRUD hazır) |
+| 3 | Yönetim paneli; Şehir, Firma, Otobüs, Sefer CRUD; kullanıcı rol atama | – |
 | 4 | Sefer arama ve sonuç listesi; Web API (/api/seferler) + Swagger | – |
 | 5 | Koltuk durumu servisi, koltuk haritası, yolcu bilgileri formu | – |
 | 6 | Ödeme + bilet transaction'ı, simüle ödeme, PNR ve Biletlerim | – |
