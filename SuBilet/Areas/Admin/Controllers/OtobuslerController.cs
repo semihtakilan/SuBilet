@@ -49,7 +49,7 @@ public class OtobuslerController : AdminControllerBase
             otobus.Plaka = otobus.Plaka.Trim().ToUpperInvariant();
             _context.Add(otobus);
             await _context.SaveChangesAsync();
-            TempData["Basari"] = $"{otobus.Plaka} plakalı otobüs başarıyla eklendi.";
+            TempData["Mesaj"] = $"{otobus.Plaka} plakalı otobüs başarıyla eklendi.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -72,29 +72,25 @@ public class OtobuslerController : AdminControllerBase
     // POST: Admin/Otobusler/Duzenle/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Duzenle(int id, Otobus otobus)
+    public async Task<IActionResult> Duzenle(int id, Otobus otobus, List<string>? secilenOzellikler)
     {
         if (id != otobus.Id) return NotFound();
 
-        if (await _context.Otobusler.AnyAsync(o => o.Id != id && o.Plaka.ToLower() == otobus.Plaka.Trim().ToLower()))
-        {
-            ModelState.AddModelError(nameof(otobus.Plaka), "Bu plakaya sahip başka bir otobüs mevcut.");
-        }
+        otobus.Ozellikler = secilenOzellikler ?? new List<string>();
 
         if (ModelState.IsValid)
         {
             try
             {
-                otobus.Plaka = otobus.Plaka.Trim().ToUpperInvariant();
+                otobus.Plaka = otobus.Plaka.ToUpper().Trim();
                 _context.Update(otobus);
                 await _context.SaveChangesAsync();
-                TempData["Basari"] = $"{otobus.Plaka} plakalı otobüs güncellendi.";
+                TempData["Mesaj"] = $"{otobus.Plaka} plakalı otobüs güncellendi.";
                 return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!await _context.Otobusler.AnyAsync(e => e.Id == id))
-                    return NotFound();
+                if (!_context.Otobusler.Any(e => e.Id == otobus.Id)) return NotFound();
                 throw;
             }
         }
@@ -136,7 +132,7 @@ public class OtobuslerController : AdminControllerBase
 
         _context.Otobusler.Remove(otobus);
         await _context.SaveChangesAsync();
-        TempData["Basari"] = $"{otobus.Plaka} plakalı otobüs silindi.";
+        TempData["Mesaj"] = $"{otobus.Plaka} plakalı otobüs silindi.";
         return RedirectToAction(nameof(Index));
     }
 

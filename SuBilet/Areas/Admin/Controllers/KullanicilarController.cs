@@ -63,12 +63,12 @@ public class KullanicilarController : AdminControllerBase
         if (adminMi)
         {
             await _userManager.RemoveFromRoleAsync(kullanici, "Admin");
-            TempData["Basari"] = $"{kullanici.Ad} {kullanici.Soyad} kullanıcısından Admin rolü alındı.";
+            TempData["Mesaj"] = $"{kullanici.Ad} {kullanici.Soyad} kullanıcısından Admin rolü alındı.";
         }
         else
         {
             await _userManager.AddToRoleAsync(kullanici, "Admin");
-            TempData["Basari"] = $"{kullanici.Ad} {kullanici.Soyad} kullanıcısına Admin rolü verildi.";
+            TempData["Mesaj"] = $"{kullanici.Ad} {kullanici.Soyad} kullanıcısına Admin rolü verildi.";
         }
 
         return RedirectToAction(nameof(Index));
