@@ -202,3 +202,9 @@ a.sb-sayac:hover {
     padding: 1.5rem;
   }
 }
+
+.sb-logo-kucuk {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
