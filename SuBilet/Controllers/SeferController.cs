@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +8,7 @@ using SuBilet.Models;
 
 namespace SuBilet.Controllers;
 
+[Authorize(Roles = Roller.Admin)]
 public class SeferController : Controller
 {
     private readonly AppDbContext _context;
@@ -38,7 +40,16 @@ public class SeferController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(Sefer sefer)
     {
-        SeferValidator.Dogrula(sefer, ModelState);
+        if (sefer.FirmaId.HasValue && sefer.OtobusId.HasValue)
+        {
+            var otobus = await _context.Otobusler.FindAsync(sefer.OtobusId);
+            if (otobus != null && otobus.FirmaId != sefer.FirmaId)
+            {
+                ModelState.AddModelError("OtobusId", "Seçilen otobüs belirlenen firmaya ait değildir.");
+            }
+        }
+
+        SeferValidator.Dogrula(sefer, ModelState, isNew: true);
 
         if (ModelState.IsValid)
         {
@@ -69,7 +80,16 @@ public class SeferController : Controller
     {
         if (id != sefer.Id) return NotFound();
 
-        SeferValidator.Dogrula(sefer, ModelState);
+        if (sefer.FirmaId.HasValue && sefer.OtobusId.HasValue)
+        {
+            var otobus = await _context.Otobusler.FindAsync(sefer.OtobusId);
+            if (otobus != null && otobus.FirmaId != sefer.FirmaId)
+            {
+                ModelState.AddModelError("OtobusId", "Seçilen otobüs belirlenen firmaya ait değildir.");
+            }
+        }
+
+        SeferValidator.Dogrula(sefer, ModelState, isNew: false);
 
         if (ModelState.IsValid)
         {
@@ -103,6 +123,13 @@ public class SeferController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
+        var biletVarMi = await _context.Biletler.AnyAsync(b => b.SeferId == id);
+        if (biletVarMi)
+        {
+            TempData["Hata"] = "Bu sefere ait satılmış bilet(ler) bulunduğu için sefer silinemez.";
+            return RedirectToAction(nameof(Index));
+        }
+
         var sefer = await _context.Seferler.FindAsync(id);
         if (sefer != null)
         {
