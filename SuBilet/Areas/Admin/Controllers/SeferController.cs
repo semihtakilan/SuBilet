@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -6,10 +5,9 @@ using SuBilet.Data;
 using SuBilet.Dogrulama;
 using SuBilet.Models;
 
-namespace SuBilet.Controllers;
+namespace SuBilet.Areas.Admin.Controllers;
 
-[Authorize(Roles = Roller.Admin)]
-public class SeferController : Controller
+public class SeferController : AdminControllerBase
 {
     private readonly AppDbContext _context;
 
