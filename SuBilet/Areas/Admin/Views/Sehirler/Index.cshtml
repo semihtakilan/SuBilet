@@ -13,6 +13,7 @@
             <a asp-action="Index" class="btn btn-link px-1">Temizle</a>
         }
     </form>
+    <a asp-action="Ekle" class="btn btn-primary">Yeni Şehir</a>
 </div>
 
 <div class="sb-tablo table-responsive">
@@ -21,6 +22,7 @@
             <tr>
                 <th style="width: 6rem;">Plaka</th>
                 <th>Şehir</th>
+                <th class="text-end">İşlemler</th>
             </tr>
         </thead>
         <tbody>
@@ -29,11 +31,14 @@
                 <tr>
                     <td>@sehir.PlakaKodu?.ToString("00")</td>
                     <td>@sehir.Ad</td>
+                    <td class="text-end text-nowrap">
+                        <a asp-action="Duzenle" asp-route-id="@sehir.Id" class="btn btn-sm btn-outline-primary">Düzenle</a>
+                    </td>
                 </tr>
             }
             @if (Model.Count == 0)
             {
-                <tr><td colspan="2" class="text-center text-body-secondary py-4">Kayıt bulunamadı.</td></tr>
+                <tr><td colspan="3" class="text-center text-body-secondary py-4">Kayıt bulunamadı.</td></tr>
             }
         </tbody>
     </table>

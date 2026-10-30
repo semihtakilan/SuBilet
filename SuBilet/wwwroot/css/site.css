@@ -189,3 +189,16 @@ a.sb-sayac:hover {
 .sb-tablo .table > :not(caption) > * > * {
   padding: .65rem .75rem;
 }
+
+.sb-kart {
+  background: #fff;
+  border: 1px solid #e3e7ee;
+  border-radius: .75rem;
+  padding: 1rem;
+}
+
+@media (min-width: 768px) {
+  .sb-kart {
+    padding: 1.5rem;
+  }
+}
