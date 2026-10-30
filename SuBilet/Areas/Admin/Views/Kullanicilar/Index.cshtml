@@ -1,0 +1,79 @@
+﻿@model IEnumerable<KullaniciYonetimViewModel>
+@{
+    ViewData["Title"] = "Kullanıcı Yönetimi";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="h4 mb-1">Kullanıcı Listesi & Rol Yönetimi</h2>
+        <p class="text-muted small mb-0">Sisteme kayıtlı kullanıcıları listeleyin ve yönetici yetkilerini yönetin.</p>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-3">Ad Soyad</th>
+                        <th>E-Posta</th>
+                        <th>Telefon</th>
+                        <th>Mevcut Roller</th>
+                        <th class ="text-end pe-3">İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        @foreach (var user in Model)
+                        {
+                            <tr>
+                                <td class="ps-3 fw-bold">@user.AdSoyad</td>
+                                <td>@user.Email</td>
+                                <td>@(string.IsNullOrWhiteSpace(user.Telefon) ? "-" : user.Telefon)</td>
+                                <td>
+                                    @foreach (var rol in user.Roller)
+                                    {
+                                        @if (rol == "Admin")
+                                        {
+                                            <span class="badge bg-danger me-1">Admin</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary me-1">@rol</span>
+                                        }
+                                    }
+                                </td>
+                                <td class="text-end pe-3">
+                                    <form asp-action="RolDegistir" method="post" class="d-inline">
+                                        <input type="hidden" name="id" value="@user.Id" />
+                                        @if (user.AdminMi)
+                                        {
+                                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                    onclick="return confirm('@user.AdSoyad kullanıcısının Admin rolünü almak istediğinize emin misiniz?');">
+                                                Admin Rolünü Al
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button type="submit" class="btn btn-sm btn-outline-success">
+                                                Admin Yap
+                                            </button>
+                                        }
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">Kayıtlı kullanıcı bulunamadı.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
