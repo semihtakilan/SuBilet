@@ -127,6 +127,20 @@ Veritabanını sıfırlamak için: `dotnet ef database drop` ardından `dotnet e
 2. View'ları `Areas/Admin/Views/<ControllerAdı>/` altına koyun; panel menüsü olan layout kendiliğinden kullanılır.
 3. Menü bağlantısını `Areas/Admin/Views/Shared/_AdminLayout.cshtml` içindeki listeye bir satır olarak ekleyin.
 
+## Çalışma düzeni (dal ve Pull Request)
+
+Çakışmaları önlemek için kimse `main` dalına doğrudan göndermez. Her iş kendi dalında yapılır ve Pull Request (PR) ile birleştirilir:
+
+```bash
+git switch main && git pull                 # main'in son hâlini alın
+git switch -c hafta3-otobus-crud            # işe uygun kısa bir dal adı
+# ... kod yazın, küçük adımlarla commit atın ...
+git push -u origin hafta3-otobus-crud
+gh pr create --base main                     # ya da GitHub'da "Compare & pull request"
+```
+
+PR'ı başka bir üye gözden geçirip birleştirir. Birleştirmeden önce `main`'e giren yeni değişiklikleri dalınıza alın (`git pull origin main`); çakışma çıkarsa kendi dalınızda çözün.
+
 ## Haftalık ilerleme
 
 | Hafta | İş | Durum |
