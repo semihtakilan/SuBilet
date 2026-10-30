@@ -1,0 +1,41 @@
+@model List<Sehir>
+@{
+    ViewData["Title"] = "Şehirler";
+    var arama = ViewData["Arama"] as string;
+}
+
+<div class="d-flex flex-wrap gap-2 align-items-center justify-content-between mb-3">
+    <form method="get" class="d-flex gap-2 flex-grow-1" style="max-width: 28rem;" role="search">
+        <input type="search" name="arama" value="@arama" class="form-control" placeholder="Şehir adı ya da plaka kodu" aria-label="Şehir ara" />
+        <button type="submit" class="btn btn-outline-secondary">Ara</button>
+        @if (!string.IsNullOrEmpty(arama))
+        {
+            <a asp-action="Index" class="btn btn-link px-1">Temizle</a>
+        }
+    </form>
+</div>
+
+<div class="sb-tablo table-responsive">
+    <table class="table table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th style="width: 6rem;">Plaka</th>
+                <th>Şehir</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var sehir in Model)
+            {
+                <tr>
+                    <td>@sehir.PlakaKodu?.ToString("00")</td>
+                    <td>@sehir.Ad</td>
+                </tr>
+            }
+            @if (Model.Count == 0)
+            {
+                <tr><td colspan="2" class="text-center text-body-secondary py-4">Kayıt bulunamadı.</td></tr>
+            }
+        </tbody>
+    </table>
+</div>
+<p class="small text-body-secondary mt-2">@Model.Count şehir listelendi.</p>

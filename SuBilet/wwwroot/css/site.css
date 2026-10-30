@@ -175,3 +175,17 @@ a.sb-sayac:hover {
 .sb-sayac-ad {
   color: var(--bs-secondary-color);
 }
+
+.sb-tablo {
+  background: #fff;
+  border-radius: .75rem;
+  border: 1px solid #e3e7ee;
+}
+
+.sb-tablo .table {
+  margin-bottom: 0;
+}
+
+.sb-tablo .table > :not(caption) > * > * {
+  padding: .65rem .75rem;
+}
