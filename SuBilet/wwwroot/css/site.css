@@ -137,3 +137,15 @@ body {
 .input-validation-error {
   border-color: #dc3545;
 }
+
+/* Yönetim paneli */
+.sb-panel-menu {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-bottom: 1px solid #dee2e6;
+  padding-bottom: .5rem;
+}
+
+.sb-panel-menu .nav-link {
+  white-space: nowrap;
+}
