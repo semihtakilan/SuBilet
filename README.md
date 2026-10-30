@@ -78,7 +78,7 @@ Tarayıcıda **http://localhost:5214** adresini açın. İlk açılışta roller
 
 ### 7. Giriş yapın
 
-`admin@subilet.com` ve 4. adımda verdiğiniz şifreyle giriş yapın. Yönetici hesabı Admin rolündedir; yönetim paneli 3. haftada eklenecek. Kendi kendine üye olan kullanıcılar Yolcu rolündedir.
+`admin@subilet.com` ve 4. adımda verdiğiniz şifreyle giriş yapın. Yönetici hesabı Admin rolündedir; sağ üstteki menüden **Yönetim Paneli**'ne (ya da doğrudan http://localhost:5214/Admin adresine) girebilirsiniz. Kendi kendine üye olan kullanıcılar Yolcu rolündedir; yönetim paneline giremez.
 
 ### Visual Studio ile (Windows)
 
@@ -111,6 +111,7 @@ Veritabanını sıfırlamak için: `dotnet ef database drop` ardından `dotnet e
 ŞuBilet/
 ├── SuBilet.slnx                 # çözüm dosyası
 └── SuBilet/                     # ASP.NET Core MVC projesi
+    ├── Areas/Admin/             # yönetim paneli (/Admin, yalnızca Admin rolü)
     ├── Controllers/             # Home (ana sayfa, arama formu), Hesap (kayıt/giriş)
     ├── Data/                    # AppDbContext, seed verisi, Identity ayarları
     ├── Dogrulama/               # T.C. kimlik no ve telefon doğrulama attribute'ları
@@ -120,13 +121,19 @@ Veritabanını sıfırlamak için: `dotnet ef database drop` ardından `dotnet e
     └── wwwroot/                 # css, js, kütüphaneler
 ```
 
+### Yönetim paneline yeni sayfa eklemek
+
+1. Controller'ı `Areas/Admin/Controllers` altına koyun ve `AdminControllerBase`'den türetin. `[Area("Admin")]` ve `[Authorize(Roles = "Admin")]` bu sınıftan gelir; ayrıca yazmanız gerekmez.
+2. View'ları `Areas/Admin/Views/<ControllerAdı>/` altına koyun; panel menüsü olan layout kendiliğinden kullanılır.
+3. Menü bağlantısını `Areas/Admin/Views/Shared/_AdminLayout.cshtml` içindeki listeye bir satır olarak ekleyin.
+
 ## Haftalık ilerleme
 
 | Hafta | İş | Durum |
 |---|---|---|
 | 1 | Depo, MVC projesi, README; PostgreSQL + EF Core, Şehir/Firma ve ilk migration; ortak layout ve sefer arama formu | Tamamlandı |
 | 2 | Tüm varlıklar, Fluent API ilişkileri, 81 il + firma seed verisi; Identity, roller, varsayılan yönetici; kayıt/giriş, T.C. kimlik no ve telefon doğrulaması | Tamamlandı |
-| 3 | Yönetim paneli; Şehir, Firma, Otobüs, Sefer CRUD; kullanıcı rol atama | – |
+| 3 | Yönetim paneli; Şehir, Firma, Otobüs, Sefer CRUD; kullanıcı rol atama | Devam ediyor (panel, Şehir ve Firma CRUD tamamlandı) |
 | 4 | Sefer arama ve sonuç listesi; Web API (/api/seferler) + Swagger | – |
 | 5 | Koltuk durumu servisi, koltuk haritası, yolcu bilgileri formu | – |
 | 6 | Ödeme + bilet transaction'ı, simüle ödeme, PNR ve Biletlerim | – |
