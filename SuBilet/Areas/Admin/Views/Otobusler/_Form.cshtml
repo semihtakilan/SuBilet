@@ -1,0 +1,45 @@
+﻿@model Otobus
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <label asp-for="Plaka" class="form-label">Plaka</label>
+        <input asp-for="Plaka" class="form-control" placeholder="Örn: 06 ABC 123" />
+        <span asp-validation-for="Plaka" class="text-danger small"></span>
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="FirmaId" class="form-label">Firma</label>
+        <select asp-for="FirmaId" asp-items="ViewBag.Firmalar" class="form-select">
+            <option value="">-- Firma Seçiniz --</option>
+        </select>
+        <span asp-validation-for="FirmaId" class="text-danger small"></span>
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="KoltukDuzeni" class="form-label">Koltuk Düzeni</label>
+        <select asp-for="KoltukDuzeni" asp-items="Html.GetEnumSelectList<KoltukDuzeni>()" class="form-select">
+            <option value="">-- Koltuk Düzeni Seçiniz --</option>
+        </select>
+        <span asp-validation-for="KoltukDuzeni" class="text-danger small"></span>
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="KoltukSayisi" class="form-label">Koltuk Sayısı</label>
+        <input asp-for="KoltukSayisi" type="number" min="1" max="100" class="form-control" />
+        <span asp-validation-for="KoltukSayisi" class="text-danger small"></span>
+    </div>
+    <div class="col-12 mt-3">
+        <label class="form-label fw-bold d-block">Otobüs Özellikleri</label>
+        <div class="d-flex flex-wrap gap-3">
+            @foreach (var ozellik in SuBilet.Models.Otobus.OzellikSecenekleri)
+            {
+                var seciliMi = Model?.Ozellikler != null && Model.Ozellikler.Contains(ozellik);
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="secilenOzellikler" value="@ozellik"
+                           id="ozellik_@ozellik" @(seciliMi ? "checked" : "") />
+                    <label class="form-check-label" for="ozellik_@ozellik">@ozellik</label>
+                </div>
+            }
+        </div>
+    </div>
+</div>
