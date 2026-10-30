@@ -37,16 +37,14 @@ public class OtobuslerController : AdminControllerBase
     // POST: Admin/Otobusler/Ekle
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Ekle(Otobus otobus)
+    public async Task<IActionResult> Ekle(Otobus otobus, List<string>? secilenOzellikler)
     {
-        if (await _context.Otobusler.AnyAsync(o => o.Plaka.ToLower() == otobus.Plaka.Trim().ToLower()))
-        {
-            ModelState.AddModelError(nameof(otobus.Plaka), "Bu plakaya sahip bir otobüs zaten kayıtlı.");
-        }
+        otobus.Plaka = PlakaDuzenle(otobus.Plaka);
+        otobus.Ozellikler = OzellikleriAyikla(secilenOzellikler);
+        await PlakaKontrolAsync(otobus);
 
         if (ModelState.IsValid)
         {
-            otobus.Plaka = otobus.Plaka.Trim().ToUpperInvariant();
             _context.Add(otobus);
             await _context.SaveChangesAsync();
             TempData["Mesaj"] = $"{otobus.Plaka} plakalı otobüs başarıyla eklendi.";
@@ -76,13 +74,14 @@ public class OtobuslerController : AdminControllerBase
     {
         if (id != otobus.Id) return NotFound();
 
-        otobus.Ozellikler = secilenOzellikler ?? new List<string>();
+        otobus.Plaka = PlakaDuzenle(otobus.Plaka);
+        otobus.Ozellikler = OzellikleriAyikla(secilenOzellikler);
+        await PlakaKontrolAsync(otobus);
 
         if (ModelState.IsValid)
         {
             try
             {
-                otobus.Plaka = otobus.Plaka.ToUpper().Trim();
                 _context.Update(otobus);
                 await _context.SaveChangesAsync();
                 TempData["Mesaj"] = $"{otobus.Plaka} plakalı otobüs güncellendi.";
@@ -134,6 +133,27 @@ public class OtobuslerController : AdminControllerBase
         await _context.SaveChangesAsync();
         TempData["Mesaj"] = $"{otobus.Plaka} plakalı otobüs silindi.";
         return RedirectToAction(nameof(Index));
+    }
+
+    // Plaka hep aynı biçimde saklansın diye kırpılıp büyük harfe çevrilir.
+    // ToUpperInvariant: uygulama Türkçe çalıştığı için ToUpper "i" harfini "İ" yapardı.
+    private static string PlakaDuzenle(string? plaka) => (plaka ?? "").Trim().ToUpperInvariant();
+
+    // Formdan yalnızca tanımlı özellikler kabul edilir
+    private static List<string> OzellikleriAyikla(List<string>? secilenler) =>
+        (secilenler ?? new List<string>())
+            .Where(o => Otobus.OzellikSecenekleri.Contains(o))
+            .Distinct()
+            .ToList();
+
+    // Plaka veritabanında benzersiz; aynı plaka başka otobüste varsa forma hata yazılır.
+    // Yeni kayıtta Id 0 olduğu için tüm otobüslerle karşılaştırılır.
+    private async Task PlakaKontrolAsync(Otobus otobus)
+    {
+        if (await _context.Otobusler.AnyAsync(o => o.Id != otobus.Id && o.Plaka == otobus.Plaka))
+        {
+            ModelState.AddModelError(nameof(otobus.Plaka), "Bu plakaya sahip başka bir otobüs zaten kayıtlı.");
+        }
     }
 
     private async Task FirmalariYukleAsync(int? seciliFirmaId = null)
