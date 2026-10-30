@@ -118,6 +118,47 @@ public class FirmalarController : AdminControllerBase
         return RedirectToAction(nameof(Index));
     }
 
+    // Silme onay sayfası; bağlı kayıt varsa silme yerine pasif yapma önerilir
+    public async Task<IActionResult> Sil(int id)
+    {
+        var satir = await _context.Firmalar
+            .AsNoTracking()
+            .Where(f => f.Id == id)
+            .Select(f => new FirmaSatiri(f, f.Otobusler.Count, f.Seferler.Count, f.Kullanicilar.Count))
+            .FirstOrDefaultAsync();
+        if (satir == null)
+        {
+            return NotFound();
+        }
+        return View(satir);
+    }
+
+    [HttpPost, ActionName("Sil")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SilOnayla(int id)
+    {
+        var firma = await _context.Firmalar.FindAsync(id);
+        if (firma == null)
+        {
+            return NotFound();
+        }
+
+        // Otobüsü ya da seferi olan firma silinemez (ilişki Restrict); geçmiş kayıtlar korunur
+        bool bagliKayitVar = await _context.Otobusler.AnyAsync(o => o.FirmaId == id)
+                          || await _context.Seferler.AnyAsync(s => s.FirmaId == id);
+        if (bagliKayitVar)
+        {
+            TempData["Hata"] = $"{firma.Ad} firmasının otobüs ya da seferleri olduğu için silinemez. Firmayı pasif yapabilirsiniz.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        // Firma yetkililerinin FirmaId'si veritabanında kendiliğinden boşalır (SetNull)
+        _context.Firmalar.Remove(firma);
+        await _context.SaveChangesAsync();
+        TempData["Mesaj"] = $"{firma.Ad} silindi.";
+        return RedirectToAction(nameof(Index));
+    }
+
     // Formdan gelen metinlerin başındaki/sonundaki boşluklar atılır
     private static void BosluklariTemizle(Firma firma)
     {
