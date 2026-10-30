@@ -149,3 +149,29 @@ body {
 .sb-panel-menu .nav-link {
   white-space: nowrap;
 }
+
+.sb-sayac {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 1rem 1.25rem;
+  background: #fff;
+  border: 1px solid #e3e7ee;
+  border-radius: .75rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+a.sb-sayac:hover {
+  border-color: var(--bs-primary);
+}
+
+.sb-sayac-deger {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--sb-lacivert);
+}
+
+.sb-sayac-ad {
+  color: var(--bs-secondary-color);
+}

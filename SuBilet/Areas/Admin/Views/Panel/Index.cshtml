@@ -1,0 +1,43 @@
+@model PanelViewModel
+@{
+    ViewData["Title"] = "Yönetim Paneli";
+}
+
+<div class="row g-3">
+    <div class="col-6 col-md-4">
+        <div class="sb-sayac">
+            <span class="sb-sayac-deger">@Model.SehirSayisi</span>
+            <span class="sb-sayac-ad">Şehir</span>
+        </div>
+    </div>
+    <div class="col-6 col-md-4">
+        <div class="sb-sayac">
+            <span class="sb-sayac-deger">@Model.FirmaSayisi</span>
+            <span class="sb-sayac-ad">Firma (@Model.AktifFirmaSayisi aktif)</span>
+        </div>
+    </div>
+    <div class="col-6 col-md-4">
+        <div class="sb-sayac">
+            <span class="sb-sayac-deger">@Model.OtobusSayisi</span>
+            <span class="sb-sayac-ad">Otobüs</span>
+        </div>
+    </div>
+    <div class="col-6 col-md-4">
+        <div class="sb-sayac">
+            <span class="sb-sayac-deger">@Model.YaklasanSeferSayisi</span>
+            <span class="sb-sayac-ad">Yaklaşan sefer</span>
+        </div>
+    </div>
+    <div class="col-6 col-md-4">
+        <div class="sb-sayac">
+            <span class="sb-sayac-deger">@Model.KullaniciSayisi</span>
+            <span class="sb-sayac-ad">Kullanıcı</span>
+        </div>
+    </div>
+    <div class="col-6 col-md-4">
+        <div class="sb-sayac">
+            <span class="sb-sayac-deger">@Model.AktifBiletSayisi</span>
+            <span class="sb-sayac-ad">Aktif bilet</span>
+        </div>
+    </div>
+</div>
