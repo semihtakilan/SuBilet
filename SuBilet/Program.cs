@@ -83,6 +83,13 @@ app.UseAuthorization();
 
 app.MapStaticAssets();
 
+// Yönetim paneli: /Admin/{controller}/{action}/{id?}; /Admin tek başına panel ana sayfasını açar.
+// Area rotası varsayılan rotadan önce tanımlanmalı.
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Panel}/{action=Index}/{id?}")
+    .WithStaticAssets();
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}")
