@@ -1,0 +1,26 @@
+@model Sehir
+@{
+    ViewData["Title"] = "Şehir Sil";
+    var seferSayisi = (int)(ViewData["SeferSayisi"] ?? 0);
+}
+
+<div class="sb-kart" style="max-width: 40rem;">
+    <h2 class="h5 mb-3">Şehir Sil</h2>
+    @if (seferSayisi > 0)
+    {
+        <div class="alert alert-warning">
+            <strong>@Model.Ad</strong> @seferSayisi seferde kullanılıyor; silinemez.
+        </div>
+        <a asp-action="Index" class="btn btn-secondary">Listeye dön</a>
+    }
+    else
+    {
+        <div class="alert alert-warning">
+            <strong>@Model.Ad</strong> (@Model.PlakaKodu?.ToString("00")) silinecek. Emin misiniz?
+        </div>
+        <form asp-action="Sil" asp-route-id="@Model.Id" method="post" class="d-flex gap-2">
+            <button type="submit" class="btn btn-danger">Evet, sil</button>
+            <a asp-action="Index" class="btn btn-secondary">Vazgeç</a>
+        </form>
+    }
+</div>

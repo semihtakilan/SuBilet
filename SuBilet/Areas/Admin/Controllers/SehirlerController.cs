@@ -106,6 +106,46 @@ public class SehirlerController : AdminControllerBase
         return RedirectToAction(nameof(Index));
     }
 
+    // Silme onay sayfası
+    public async Task<IActionResult> Sil(int id)
+    {
+        var sehir = await _context.Sehirler.FindAsync(id);
+        if (sehir == null)
+        {
+            return NotFound();
+        }
+        ViewData["SeferSayisi"] = await SeferSayisiAsync(id);
+        return View(sehir);
+    }
+
+    [HttpPost, ActionName("Sil")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SilOnayla(int id)
+    {
+        var sehir = await _context.Sehirler.FindAsync(id);
+        if (sehir == null)
+        {
+            return NotFound();
+        }
+
+        // Seferlerde kalkış ya da varış olarak kullanılan şehir silinemez (ilişki Restrict)
+        if (await SeferSayisiAsync(id) > 0)
+        {
+            TempData["Hata"] = $"{sehir.Ad} seferlerde kullanıldığı için silinemez.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        _context.Sehirler.Remove(sehir);
+        await _context.SaveChangesAsync();
+        TempData["Mesaj"] = $"{sehir.Ad} silindi.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    private Task<int> SeferSayisiAsync(int sehirId)
+    {
+        return _context.Seferler.CountAsync(s => s.KalkisSehirId == sehirId || s.VarisSehirId == sehirId);
+    }
+
     // Aynı ad ya da plaka kodu başka bir şehirde var mı? Veritabanına bakmayı gerektiren
     // bu kurallar DataAnnotations ile yazılamadığı için hata ModelState'e elle eklenir.
     // id: düzenlenen şehrin kendisi karşılaştırmaya katılmasın diye (eklemede 0).
