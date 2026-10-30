@@ -1,0 +1,26 @@
+@{
+    // Ana layout'un içine yerleşir: üst menü ve alt bilgi aynı kalır, panel menüsü eklenir
+    Layout = "_Layout";
+    var aktifController = ViewContext.RouteData.Values["controller"]?.ToString();
+
+    string Aktif(string controller) => controller == aktifController ? "active" : "";
+}
+
+<div class="container py-3 py-md-4">
+    <h1 class="h4 mb-3">Yönetim Paneli</h1>
+
+    @* Yeni bir yönetim sayfası eklerken menüye buraya bir satır ekleyin *@
+    <nav class="sb-panel-menu mb-4" aria-label="Yönetim menüsü">
+        <ul class="nav nav-pills flex-nowrap">
+            <li class="nav-item"><a class="nav-link @Aktif("Panel")" asp-area="Admin" asp-controller="Panel" asp-action="Index">Özet</a></li>
+            <li class="nav-item"><a class="nav-link @Aktif("Sehirler")" asp-area="Admin" asp-controller="Sehirler" asp-action="Index">Şehirler</a></li>
+            <li class="nav-item"><a class="nav-link @Aktif("Firmalar")" asp-area="Admin" asp-controller="Firmalar" asp-action="Index">Firmalar</a></li>
+        </ul>
+    </nav>
+
+    @RenderBody()
+</div>
+
+@section Scripts {
+    @await RenderSectionAsync("Scripts", required: false)
+}

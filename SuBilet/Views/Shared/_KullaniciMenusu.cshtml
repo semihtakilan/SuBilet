@@ -8,6 +8,11 @@
                 Merhaba, @adSoyad
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
+                @if (User.IsInRole(Roller.Admin))
+                {
+                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="Panel" asp-action="Index">Yönetim Paneli</a></li>
+                    <li><hr class="dropdown-divider" /></li>
+                }
                 <li>
                     <form asp-area="" asp-controller="Hesap" asp-action="Cikis" method="post">
                         <button type="submit" class="dropdown-item">Çıkış Yap</button>

@@ -1,0 +1,63 @@
+@model List<FirmaSatiri>
+@{
+    ViewData["Title"] = "Firmalar";
+}
+
+<div class="d-flex justify-content-end mb-3">
+    <a asp-action="Ekle" class="btn btn-primary">Yeni Firma</a>
+</div>
+
+<div class="sb-tablo table-responsive">
+    <table class="table table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Firma</th>
+                <th class="d-none d-md-table-cell">İletişim</th>
+                <th class="text-center">Otobüs</th>
+                <th class="text-center">Sefer</th>
+                <th>Durum</th>
+                <th class="text-end">İşlemler</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var satir in Model)
+            {
+                var firma = satir.Firma;
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            @if (!string.IsNullOrEmpty(firma.LogoUrl))
+                            {
+                                <img src="@firma.LogoUrl" alt="" class="sb-logo-kucuk" loading="lazy" />
+                            }
+                            <a asp-action="Detay" asp-route-id="@firma.Id">@firma.Ad</a>
+                        </div>
+                    </td>
+                    <td class="d-none d-md-table-cell small">
+                        @firma.Telefon<br /><span class="text-body-secondary">@firma.Eposta</span>
+                    </td>
+                    <td class="text-center">@satir.OtobusSayisi</td>
+                    <td class="text-center">@satir.SeferSayisi</td>
+                    <td>
+                        @if (firma.AktifMi)
+                        {
+                            <span class="badge text-bg-success">Aktif</span>
+                        }
+                        else
+                        {
+                            <span class="badge text-bg-secondary">Pasif</span>
+                        }
+                    </td>
+                    <td class="text-end text-nowrap">
+                        <a asp-action="Duzenle" asp-route-id="@firma.Id" class="btn btn-sm btn-outline-primary">Düzenle</a>
+                        <a asp-action="Sil" asp-route-id="@firma.Id" class="btn btn-sm btn-outline-danger">Sil</a>
+                    </td>
+                </tr>
+            }
+            @if (Model.Count == 0)
+            {
+                <tr><td colspan="6" class="text-center text-body-secondary py-4">Henüz firma yok.</td></tr>
+            }
+        </tbody>
+    </table>
+</div>
