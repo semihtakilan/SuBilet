@@ -1,0 +1,69 @@
+@model SeferFiltrePaneli
+@*
+    Sonuç listesinin üstündeki çubuk: sefer sayısı, sıralama, mobilde "Filtrele" düğmesi ve seçili filtre etiketleri.
+    _SeferFiltreleri ile birlikte kullanılır.
+*@
+@{
+    var istek = Context.Request;
+    var filtre = Model.Filtre;
+    var seciliFirmalar = Model.Firmalar.Where(f => f.Secili).ToList();
+    var seciliSaatler = filtre.Saatler.Where(s => Enum.IsDefined(s)).Distinct().ToList();
+    var etiketSayisi = seciliFirmalar.Count + seciliSaatler.Count;
+}
+
+<div class="sb-arac-cubugu">
+    <div class="d-flex align-items-center gap-2">
+        <div class="me-auto sb-sonuc-sayisi" role="status">
+            @if (filtre.SeciliFiltreSayisi > 0)
+            {
+                <span><strong>@Model.GosterilenSefer</strong> / @Model.ToplamSefer sefer</span>
+            }
+            else
+            {
+                <span><strong>@Model.ToplamSefer</strong> sefer</span>
+            }
+        </div>
+
+        <button type="button" class="btn btn-outline-primary d-lg-none text-nowrap" data-bs-toggle="offcanvas"
+                data-bs-target="#seferFiltreleri" aria-controls="seferFiltreleri">
+            Filtrele
+            @if (etiketSayisi > 0)
+            {
+                <span class="badge text-bg-primary ms-1">@etiketSayisi</span>
+            }
+        </button>
+
+        <label for="seferSiralama" class="visually-hidden">Sırala</label>
+        <select id="seferSiralama" name="Siralama" form="seferFiltreFormu" class="form-select sb-siralama">
+            @foreach (var secenek in Model.Siralamalar)
+            {
+                <option value="@secenek.Deger" selected="@secenek.Secili">@secenek.Ad</option>
+            }
+        </select>
+    </div>
+
+    @if (etiketSayisi > 0)
+    {
+        <div class="sb-etiketler" aria-label="Seçili filtreler">
+            @foreach (var saat in seciliSaatler)
+            {
+                <a class="sb-etiket" href="@Model.SaatKaldirAdresi(istek, saat)"
+                   title="Filtreyi kaldır">@saat.Ad() <span aria-hidden="true">&times;</span><span class="visually-hidden"> filtresini kaldır</span></a>
+            }
+            @foreach (var firma in seciliFirmalar)
+            {
+                <a class="sb-etiket" href="@Model.FirmaKaldirAdresi(istek, int.Parse(firma.Deger))"
+                   title="Filtreyi kaldır">@firma.Ad <span aria-hidden="true">&times;</span><span class="visually-hidden"> filtresini kaldır</span></a>
+            }
+            <a class="sb-etiket-temizle" href="@Model.TemizleAdresi(istek)">Tümünü temizle</a>
+        </div>
+    }
+</div>
+
+@if (Model.ToplamSefer > 0 && Model.GosterilenSefer == 0)
+{
+    <div class="alert alert-light border mt-3" role="status">
+        Seçtiğin filtrelere uyan sefer yok.
+        <a href="@Model.TemizleAdresi(istek)" class="alert-link">Filtreleri temizle</a>
+    </div>
+}
