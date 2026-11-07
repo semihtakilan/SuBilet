@@ -8,7 +8,7 @@
         <h1 class="sb-hero-baslik mb-2">Otobüs biletini <span class="text-nowrap">ŞuBilet'te</span> bul</h1>
         <p class="sb-hero-alt mb-4">Tüm firmaların seferlerini karşılaştır, koltuğunu seç, biletini dakikalar içinde al.</p>
 
-        <form asp-controller="Seferler" asp-action="Index" method="get">
+        <form asp-controller="Seferler" asp-action="Index" method="get" class="sb-arama-kart" novalidate>
             <div class="row g-2 g-lg-3 align-items-start">
                 <div class="col-12 col-lg">
                     <label asp-for="KalkisSehirId" class="form-label"></label>
