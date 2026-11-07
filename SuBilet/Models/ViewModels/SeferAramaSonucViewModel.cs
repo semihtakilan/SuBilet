@@ -28,6 +28,14 @@ public class SeferKartViewModel
     public TimeSpan Sure => VarisZamani >= KalkisZamani
         ? VarisZamani - KalkisZamani
         : TimeSpan.Zero;
+
+    // 26 saatlik yolculuk "26 sa 0 dk" yazılır; TimeSpan.Hours gün kısmını atardı.
+    public string SureMetni => Sure.Minutes == 0
+        ? $"{(int)Sure.TotalHours} sa"
+        : $"{(int)Sure.TotalHours} sa {Sure.Minutes} dk";
+
+    // Varış kalkıştan kaç gün sonra (gece yarısını geçen seferlerde +1)
+    public int VarisGunFarki => (VarisZamani.Date - KalkisZamani.Date).Days;
     public decimal Fiyat { get; set; }
     public KoltukDuzeni KoltukDuzeni { get; set; }
     public List<string> Ozellikler { get; set; } = new();
