@@ -1,0 +1,59 @@
+﻿@model SuBilet.Models.ViewModels.SeferAramaSonucViewModel
+@{
+    ViewData["Title"] = $"{Model.KalkisYeri} - {Model.VarisYeri} Seferleri";
+}
+
+<div class="container my-4">
+    <div class="row">
+        @if (Model.FiltrePaneli != null)
+        {
+            <div class="col-lg-3 mb-4">
+                <partial name="_SeferFiltreleri" model="Model.FiltrePaneli" />
+            </div>
+        }
+
+        <div class="@(Model.FiltrePaneli != null ? "col-lg-9" : "col-12")">
+            @if (Model.FiltrePaneli != null)
+            {
+                <partial name="_SeferAracCubugu" model="Model.FiltrePaneli" />
+            }
+
+            @if (!Model.Seferler.Any())
+            {
+                <div class="alert alert-info text-center py-4 my-3">
+                    <p class="mb-0">Aradığınız kriterlere uygun sefer bulunamadı.</p>
+                </div>
+            }
+            else
+            {
+                <div class="d-flex flex-column gap-3 mt-3">
+                    @foreach (var sefer in Model.Seferler)
+                    {
+                        <div class="card shadow-sm border-0">
+                            <div class="card-body p-4 d-flex flex-wrap justify-content-between align-items-center gap-3">
+                                <div class="d-flex align-items-center gap-3">
+                                    @if (!string.IsNullOrEmpty(sefer.FirmaLogoUrl))
+                                    {
+                                        <img src="@sefer.FirmaLogoUrl" alt="@sefer.FirmaAdi" style="height: 40px; object-fit: contain;" />
+                                    }
+                                    <h5 class="fw-bold mb-0">@sefer.FirmaAdi</h5>
+                                </div>
+
+                                <div class="text-center">
+                                    <div class="fs-4 fw-bold">@sefer.KalkisSaati.ToString("HH:mm") &rarr; @sefer.VarisSaati.ToString("HH:mm")</div>
+                                    <small class="text-muted">@sefer.Sure.Hours saat @sefer.Sure.Minutes dakika</small>
+                                </div>
+
+                                <div class="text-end">
+                                    <div class="fs-4 fw-bold text-primary mb-1">@sefer.Fiyat.ToString("C2")</div>
+                                    <small class="d-block text-muted mb-2">@sefer.BosKoltukSayisi boş koltuk</small>
+                                    <a href="#" class="btn btn-primary px-4">Koltuk Seç</a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
