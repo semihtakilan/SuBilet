@@ -1,3 +1,5 @@
+using System.Globalization;
+using Microsoft.EntityFrameworkCore;
 using SuBilet.Models;
 using SuBilet.Models.ViewModels;
 
@@ -34,6 +36,40 @@ public static class SeferFiltreleme
         }
 
         return sorgu;
+    }
+
+    // Filtre panelini doldurur: aramada çıkan firmalar, saat aralıkları ve her birindeki sefer sayısı.
+    // aramaSorgusu filtresiz arama sorgusudur (şehir + tarih); sayılar filtrelerden önceki sonuca göredir.
+    public static async Task<SeferFiltrePaneli> FiltrePaneliHazirlaAsync(this IQueryable<Sefer> aramaSorgusu, SeferFiltresi filtre)
+    {
+        var satirlar = await aramaSorgusu
+            .Select(s => new { FirmaId = s.FirmaId!.Value, FirmaAd = s.Firma!.Ad, Saat = s.KalkisZamani!.Value.Hour })
+            .ToListAsync();
+
+        // Türkçe alfabeye göre sıralama bellekte yapılır (Ç, Ş, İ doğru yere gelsin).
+        var turkce = StringComparer.Create(new CultureInfo("tr-TR"), false);
+        var firmalar = satirlar
+            .GroupBy(x => new { x.FirmaId, x.FirmaAd })
+            .OrderBy(g => g.Key.FirmaAd, turkce)
+            .Select(g => new FiltreSecenegi(g.Key.FirmaId.ToString(), g.Key.FirmaAd, null, g.Count(),
+                filtre.FirmaIdleri.Contains(g.Key.FirmaId)))
+            .ToList();
+
+        var saatler = Enum.GetValues<SaatAraligi>()
+            .Select(a => new FiltreSecenegi(a.ToString(), a.Ad(), a.Aciklama(),
+                satirlar.Count(x => SaatAraligiUzantilari.Bul(x.Saat) == a), filtre.Saatler.Contains(a)))
+            .ToList();
+
+        return new SeferFiltrePaneli
+        {
+            Filtre = filtre,
+            Firmalar = firmalar,
+            Saatler = saatler,
+            ToplamSefer = satirlar.Count,
+            GosterilenSefer = filtre.SeciliFiltreSayisi == 0
+                ? satirlar.Count
+                : await aramaSorgusu.Filtrele(filtre).CountAsync()
+        };
     }
 
     // Eşitlikte ikinci ölçüt devreye girer; aynı fiyattakiler kalkış saatine göre dizilir.

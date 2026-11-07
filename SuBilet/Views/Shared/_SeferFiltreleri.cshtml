@@ -1,0 +1,67 @@
+@model SeferFiltrePaneli
+@*
+    Sefer sonuç sayfasının filtre paneli (firma ve kalkış saati).
+    Geniş ekranda sol sütunda durur; mobilde "Filtrele" düğmesiyle soldan açılan panele dönüşür (offcanvas-lg).
+    Sıralama kutusu _SeferAracCubugu içindedir ve form="seferFiltreFormu" ile bu forma bağlıdır.
+*@
+@{
+    var istek = Context.Request;
+}
+
+<div class="offcanvas-lg offcanvas-start sb-filtre" tabindex="-1" id="seferFiltreleri" aria-labelledby="seferFiltreleriBaslik">
+    <div class="offcanvas-header border-bottom">
+        <h2 class="offcanvas-title h5 mb-0" id="seferFiltreleriBaslik">Filtrele</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#seferFiltreleri" aria-label="Kapat"></button>
+    </div>
+    <div class="offcanvas-body">
+        <form id="seferFiltreFormu" method="get" action="@(istek.PathBase + istek.Path)" class="sb-filtre-form">
+            @foreach (var alan in SeferFiltrePaneli.AramaAlanlari(istek))
+            {
+                <input type="hidden" name="@alan.Key" value="@alan.Value" />
+            }
+
+            <h2 class="h6 fw-semibold d-none d-lg-block mb-3">Filtrele</h2>
+
+            <fieldset class="sb-filtre-grup">
+                <legend class="sb-filtre-baslik">Kalkış saati</legend>
+                @foreach (var saat in Model.Saatler)
+                {
+                    <div class="form-check sb-filtre-secenek">
+                        <input class="form-check-input" type="checkbox" name="Saatler" value="@saat.Deger"
+                               id="saat-@saat.Deger" checked="@saat.Secili" disabled="@(saat.SeferSayisi == 0 && !saat.Secili)" />
+                        <label class="form-check-label" for="saat-@saat.Deger">
+                            <span>@saat.Ad <span class="sb-filtre-aciklama">@saat.Aciklama</span></span>
+                            <span class="sb-filtre-sayi">@saat.SeferSayisi</span>
+                        </label>
+                    </div>
+                }
+            </fieldset>
+
+            <fieldset class="sb-filtre-grup">
+                <legend class="sb-filtre-baslik">Firma</legend>
+                @if (Model.Firmalar.Count == 0)
+                {
+                    <p class="small text-body-secondary mb-0">Bu aramada sefer yok.</p>
+                }
+                @foreach (var firma in Model.Firmalar)
+                {
+                    <div class="form-check sb-filtre-secenek">
+                        <input class="form-check-input" type="checkbox" name="FirmaIdleri" value="@firma.Deger"
+                               id="firma-@firma.Deger" checked="@firma.Secili" />
+                        <label class="form-check-label" for="firma-@firma.Deger">
+                            <span>@firma.Ad</span>
+                            <span class="sb-filtre-sayi">@firma.SeferSayisi</span>
+                        </label>
+                    </div>
+                }
+            </fieldset>
+
+            <div class="sb-filtre-dugmeler">
+                <a href="@Model.TemizleAdresi(istek)" class="btn btn-outline-secondary">Temizle</a>
+                <button type="submit" class="btn btn-primary sb-filtre-uygula">Uygula</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="~/js/sefer-filtre.js" asp-append-version="true" defer></script>
