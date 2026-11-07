@@ -33,6 +33,20 @@ body {
   --bs-btn-active-border-color: #143560;
 }
 
+.btn-outline-primary {
+  --bs-btn-color: #1f4e8c;
+  --bs-btn-border-color: #1f4e8c;
+  --bs-btn-hover-bg: #1f4e8c;
+  --bs-btn-hover-border-color: #1f4e8c;
+  --bs-btn-active-bg: #183f72;
+  --bs-btn-active-border-color: #183f72;
+}
+
+.form-check-input:checked {
+  background-color: #1f4e8c;
+  border-color: #1f4e8c;
+}
+
 .btn:focus, .btn:active:focus, .form-control:focus, .form-select:focus, .form-check-input:focus {
   box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem rgba(31, 78, 140, .45);
 }
