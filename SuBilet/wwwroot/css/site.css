@@ -425,3 +425,122 @@ a.sb-sayac:hover {
     font-size: .9rem;
   }
 }
+
+/* Sefer kartı: mobilde üç satır, geniş ekranda üç sütun */
+.sb-sefer-kart {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "firma fiyat"
+    "saat  saat"
+    "bilgi dugme";
+  align-items: center;
+  gap: .75rem 1rem;
+  padding: 1rem;
+  background: #fff;
+  border: 1px solid #e3e7ee;
+  border-radius: .75rem;
+}
+
+.sb-sefer-firma {
+  grid-area: firma;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  min-width: 0;
+}
+
+.sb-sefer-firma-ad {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sb-sefer-saatler {
+  grid-area: saat;
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+}
+
+.sb-sefer-saat {
+  font-size: 1.35rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.sb-sefer-gun {
+  font-size: .7rem;
+  font-weight: 600;
+  color: var(--bs-danger);
+  margin-left: .1rem;
+}
+
+/* Kalkış ile varış arasındaki çizgi; süre ortasında yazar */
+.sb-sefer-sure {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-size: .8rem;
+  color: var(--bs-secondary-color);
+  white-space: nowrap;
+}
+
+.sb-sefer-sure::before,
+.sb-sefer-sure::after {
+  content: "";
+  flex: 1 1 auto;
+  border-top: 1px dashed #c5ccd6;
+}
+
+.sb-sefer-fiyat {
+  grid-area: fiyat;
+  justify-self: end;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--sb-lacivert);
+  white-space: nowrap;
+}
+
+.sb-sefer-bilgi {
+  grid-area: bilgi;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .25rem .75rem;
+  font-size: .8rem;
+  color: var(--bs-secondary-color);
+}
+
+.sb-sefer-dugme {
+  grid-area: dugme;
+  justify-self: end;
+}
+
+.sb-sefer-dugme .btn {
+  min-height: 2.75rem;
+  white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  .sb-sefer-kart {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) auto;
+    grid-template-areas:
+      "firma saat fiyat"
+      "bilgi saat dugme";
+    gap: .5rem 2rem;
+    padding: 1.25rem 1.5rem;
+  }
+
+  .sb-sefer-saat {
+    font-size: 1.5rem;
+  }
+
+  .sb-sefer-fiyat {
+    font-size: 1.4rem;
+  }
+}

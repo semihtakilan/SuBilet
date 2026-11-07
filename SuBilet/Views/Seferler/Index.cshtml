@@ -7,7 +7,8 @@
     <div class="row">
         @if (Model.FiltrePaneli != null)
         {
-            <div class="col-lg-3 mb-4">
+            @* Mobilde panel ekran dışında açılır; bu sütun boş kalır, alt boşluk bırakılmaz. *@
+            <div class="col-lg-3">
                 <partial name="_SeferFiltreleri" model="Model.FiltrePaneli" />
             </div>
         }
@@ -26,31 +27,57 @@
             }
             else
             {
-                <div class="d-flex flex-column gap-3 mt-3">
+                @* Kart alanları CSS grid ile yerleşir: mobilde firma/fiyat, saatler, bilgi/düğme üç satır;
+                   geniş ekranda firma | saatler | fiyat üç sütun (site.css > Sefer kartı). *@
+                <div class="d-flex flex-column gap-3">
                     @foreach (var sefer in Model.Seferler)
                     {
-                        <div class="card shadow-sm border-0">
-                            <div class="card-body p-4 d-flex flex-wrap justify-content-between align-items-center gap-3">
-                                <div class="d-flex align-items-center gap-3">
-                                    @if (!string.IsNullOrEmpty(sefer.FirmaLogoUrl))
-                                    {
-                                        <img src="@sefer.FirmaLogoUrl" alt="@sefer.FirmaAdi" style="height: 40px; object-fit: contain;" />
-                                    }
-                                    <h5 class="fw-bold mb-0">@sefer.FirmaAdi</h5>
-                                </div>
-
-                                <div class="text-center">
-                                    <div class="fs-4 fw-bold">@sefer.KalkisSaati.ToString("HH:mm") &rarr; @sefer.VarisSaati.ToString("HH:mm")</div>
-                                    <small class="text-muted">@sefer.Sure.Hours saat @sefer.Sure.Minutes dakika</small>
-                                </div>
-
-                                <div class="text-end">
-                                    <div class="fs-4 fw-bold text-primary mb-1">@sefer.Fiyat.ToString("C2")</div>
-                                    <small class="d-block text-muted mb-2">@sefer.BosKoltukSayisi boş koltuk</small>
-                                    <a href="#" class="btn btn-primary px-4">Koltuk Seç</a>
-                                </div>
+                        var dolu = sefer.BosKoltukSayisi <= 0;
+                        <article class="sb-sefer-kart">
+                            <div class="sb-sefer-firma">
+                                @if (!string.IsNullOrEmpty(sefer.FirmaLogoUrl))
+                                {
+                                    <img src="@sefer.FirmaLogoUrl" alt="" class="sb-logo-kucuk" />
+                                }
+                                <h2 class="sb-sefer-firma-ad">@sefer.FirmaAdi</h2>
                             </div>
-                        </div>
+
+                            <div class="sb-sefer-saatler">
+                                <span class="sb-sefer-saat">@sefer.KalkisSaati.ToString("HH:mm")</span>
+                                <span class="sb-sefer-sure">@sefer.SureMetni</span>
+                                <span class="sb-sefer-saat">
+                                    @sefer.VarisSaati.ToString("HH:mm")
+                                    @if (sefer.VarisGunFarki > 0)
+                                    {
+                                        <sup class="sb-sefer-gun" title="@sefer.VarisGunFarki gün sonra varış">+@sefer.VarisGunFarki</sup>
+                                    }
+                                </span>
+                            </div>
+
+                            <div class="sb-sefer-fiyat">@sefer.Fiyat.ToString("C2")</div>
+
+                            <div class="sb-sefer-bilgi">
+                                <span>@sefer.KoltukDuzeni.Ad()</span>
+                                @foreach (var ozellik in sefer.Ozellikler)
+                                {
+                                    <span>@ozellik</span>
+                                }
+                                <span class="@(sefer.BosKoltukSayisi <= 5 ? "text-danger fw-semibold" : "")">
+                                    @(dolu ? "Dolu" : $"{sefer.BosKoltukSayisi} boş koltuk")
+                                </span>
+                            </div>
+
+                            <div class="sb-sefer-dugme">
+                                @if (dolu)
+                                {
+                                    <button type="button" class="btn btn-secondary" disabled>Dolu</button>
+                                }
+                                else
+                                {
+                                    <a href="#" class="btn btn-primary">Koltuk Seç</a>
+                                }
+                            </div>
+                        </article>
                     }
                 </div>
             }
