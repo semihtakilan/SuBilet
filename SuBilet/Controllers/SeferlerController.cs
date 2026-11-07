@@ -27,6 +27,10 @@ public class SeferlerController : Controller
         var aramaTarihi = arama.Tarih.Value.Date;
         var ertesiGun = aramaTarihi.AddDays(1);
 
+        // Bugün için aramada kalkmış seferler listelenmez; aralık şimdiki saatten başlar.
+        var simdi = DateTime.Now;
+        var baslangic = aramaTarihi > simdi ? aramaTarihi : simdi;
+
         var aramaSorgusu = _context.Seferler
             .AsNoTracking()
             .Include(s => s.Firma)
@@ -37,7 +41,7 @@ public class SeferlerController : Controller
             .Where(s => s.Durum == SeferDurumu.Aktif &&
                         s.KalkisSehirId == arama.KalkisSehirId.Value &&
                         s.VarisSehirId == arama.VarisSehirId.Value &&
-                        s.KalkisZamani >= aramaTarihi &&
+                        s.KalkisZamani >= baslangic &&
                         s.KalkisZamani < ertesiGun);
 
         var filtrePaneli = await aramaSorgusu.FiltrePaneliHazirlaAsync(filtre);
