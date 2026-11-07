@@ -7,6 +7,10 @@ using SuBilet.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 // Bağlantı dizesi depoda değil, User Secrets'ta tutulur (README > Kurulum).
 var baglantiDizesi = builder.Configuration.GetConnectionString("SuBiletDb")
     ?? throw new InvalidOperationException(
@@ -54,7 +58,10 @@ builder.Services.AddControllersWithViews(options =>
 });
 
 var app = builder.Build();
-
+if (app.Environment.IsDevelopment()) {
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 // Roller ve varsayılan yönetici (yoksa oluşturulur)
 await KimlikVerisi.TohumlaAsync(app.Services);
 
@@ -94,5 +101,11 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}")
+    .WithStaticAssets();
+app.MapControllers();
 
 app.Run();
