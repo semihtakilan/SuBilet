@@ -18,7 +18,8 @@ BLM4581 Ağ Tabanlı Teknolojiler ve Uygulamaları dersi dönem projesi (2026–
 - PostgreSQL + Entity Framework Core (Npgsql), Code-First migration
 - ASP.NET Core Identity (giriş, roller)
 - Bootstrap 5, jQuery Validation Unobtrusive
-- Swashbuckle (Swagger UI), Chart.js, QuestPDF + QRCoder (ilerleyen haftalarda)
+- Swashbuckle (Swagger UI)
+- Chart.js, QuestPDF + QRCoder (ilerleyen haftalarda)
 
 ## Kurulum (sıfırdan)
 
@@ -76,6 +77,8 @@ dotnet run        # ya da dosya kaydettikçe yenilenmesi için: dotnet watch
 
 Tarayıcıda **http://localhost:5214** adresini açın. İlk açılışta roller (Admin, FirmaYetkilisi, Yolcu) ve yönetici hesabı kendiliğinden oluşur.
 
+Sefer API'sini (`/api/seferler`) denemek için Swagger UI: **http://localhost:5214/swagger** (yalnızca Development ortamında açılır).
+
 ### 7. Giriş yapın
 
 `admin@subilet.com` ve 4. adımda verdiğiniz şifreyle giriş yapın. Yönetici hesabı Admin rolündedir; sağ üstteki menüden **Yönetim Paneli**'ne (ya da doğrudan http://localhost:5214/Admin adresine) girebilirsiniz. Kendi kendine üye olan kullanıcılar Yolcu rolündedir; yönetim paneline giremez.
@@ -112,11 +115,13 @@ Veritabanını sıfırlamak için: `dotnet ef database drop` ardından `dotnet e
 ├── SuBilet.slnx                 # çözüm dosyası
 └── SuBilet/                     # ASP.NET Core MVC projesi
     ├── Areas/Admin/             # yönetim paneli (/Admin, yalnızca Admin rolü)
-    ├── Controllers/             # Home (ana sayfa, arama formu), Hesap (kayıt/giriş)
+    ├── Controllers/             # Home (ana sayfa, arama formu), Hesap (kayıt/giriş), Seferler (arama sonuçları), SeferlerApi (/api/seferler)
+    ├── DTOs/                    # API'nin istek ve yanıt sınıfları
     ├── Data/                    # AppDbContext, seed verisi, Identity ayarları
     ├── Dogrulama/               # T.C. kimlik no ve telefon doğrulama attribute'ları
     ├── Migrations/              # EF Core migration'ları
     ├── Models/                  # varlıklar ve ViewModel'ler
+    ├── Servisler/               # sefer filtreleme ve sıralama
     ├── Views/
     └── wwwroot/                 # css, js, kütüphaneler
 ```
@@ -147,8 +152,8 @@ PR'ı başka bir üye gözden geçirip birleştirir. Birleştirmeden önce `main
 |---|---|---|
 | 1 | Depo, MVC projesi, README; PostgreSQL + EF Core, Şehir/Firma ve ilk migration; ortak layout ve sefer arama formu | Tamamlandı |
 | 2 | Tüm varlıklar, Fluent API ilişkileri, 81 il + firma seed verisi; Identity, roller, varsayılan yönetici; kayıt/giriş, T.C. kimlik no ve telefon doğrulaması | Tamamlandı |
-| 3 | Yönetim paneli; Şehir, Firma, Otobüs, Sefer CRUD; kullanıcı rol atama | Devam ediyor (panel, Şehir ve Firma CRUD tamamlandı) |
-| 4 | Sefer arama ve sonuç listesi; Web API (/api/seferler) + Swagger | – |
+| 3 | Yönetim paneli; Şehir, Firma, Otobüs, Sefer CRUD; kullanıcı rol atama | Tamamlandı |
+| 4 | Sefer arama ve sonuç listesi; firma/saat filtreleri ve sıralama; Web API (/api/seferler) + Swagger | Tamamlandı |
 | 5 | Koltuk durumu servisi, koltuk haritası, yolcu bilgileri formu | – |
 | 6 | Ödeme + bilet transaction'ı, simüle ödeme, PNR ve Biletlerim | – |
 | 7 | Bilet iptali, PNR ile sorgulama, profil, firma paneli | – |
