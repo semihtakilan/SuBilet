@@ -544,3 +544,214 @@ a.sb-sayac:hover {
     font-size: 1.4rem;
   }
 }
+
+/* Koltuk seçimi: sefer özeti, otobüs koltuk haritası ve seçim özeti */
+:root {
+  --sb-koltuk-erkek: #5b8fd6;
+  --sb-koltuk-kadin: #e5739c;
+  --sb-koltuk-secili: #2e9d5b;
+}
+
+.sb-koltuk-ozet {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: .75rem 1.5rem;
+  padding: 1rem 1.25rem;
+  background: #fff;
+  border: 1px solid #e3e7ee;
+  border-radius: .75rem;
+}
+
+.sb-koltuk-fiyat {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--sb-lacivert);
+}
+
+.sb-koltuk-lejant {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem 1.25rem;
+  font-size: .85rem;
+}
+
+.sb-koltuk-lejant li {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+}
+
+/* Otobüsün gövdesi; ön tarafı yukarıda */
+.sb-otobus {
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 1rem 1rem 1.25rem;
+  border: 2px solid #cfd6e0;
+  border-radius: 2.5rem .75rem .75rem .75rem;
+  background: #fafbfd;
+}
+
+.sb-otobus-on {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  margin-bottom: 1rem;
+  padding-bottom: .75rem;
+  border-bottom: 1px dashed #cfd6e0;
+  font-size: .8rem;
+  color: var(--bs-secondary-color);
+}
+
+.sb-koltuk-izgara {
+  --sb-koltuk-boyu: 2.75rem;
+  display: grid;
+  gap: .5rem;
+  justify-content: center;
+}
+
+.sb-duzen-22 {
+  grid-template-columns: repeat(2, var(--sb-koltuk-boyu)) 1.5rem repeat(2, var(--sb-koltuk-boyu));
+}
+
+.sb-duzen-21 {
+  grid-template-columns: var(--sb-koltuk-boyu) 2rem repeat(2, var(--sb-koltuk-boyu));
+}
+
+.sb-koltuk {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--sb-koltuk-boyu, 1.25rem);
+  height: var(--sb-koltuk-boyu, 1.25rem);
+  padding: 0;
+  font-size: .85rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--sb-lacivert);
+  background: #fff;
+  border: 1.5px solid #b9c3d1;
+  border-radius: .5rem .5rem .35rem .35rem;
+  transition: background-color .15s, border-color .15s;
+}
+
+button.sb-koltuk:not(:disabled):hover {
+  border-color: var(--sb-koltuk-secili);
+  background: #eaf6ef;
+}
+
+.sb-koltuk-secili,
+button.sb-koltuk-secili:not(:disabled):hover {
+  color: #fff;
+  background: var(--sb-koltuk-secili);
+  border-color: var(--sb-koltuk-secili);
+}
+
+/* Seçilen koltuğun köşesinde yolcunun cinsiyeti: E / K */
+.sb-koltuk-secili[data-harf]::after {
+  content: attr(data-harf);
+  position: absolute;
+  top: -.45rem;
+  right: -.45rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 50%;
+  font-size: .65rem;
+  line-height: 1.1rem;
+  color: #fff;
+  background: var(--sb-koltuk-erkek);
+}
+
+.sb-koltuk-secili[data-harf="K"]::after {
+  background: var(--sb-koltuk-kadin);
+}
+
+.sb-koltuk-erkek,
+.sb-koltuk-kadin {
+  color: #fff;
+  cursor: not-allowed;
+}
+
+.sb-koltuk-erkek {
+  background: var(--sb-koltuk-erkek);
+  border-color: var(--sb-koltuk-erkek);
+}
+
+.sb-koltuk-kadin {
+  background: var(--sb-koltuk-kadin);
+  border-color: var(--sb-koltuk-kadin);
+}
+
+.sb-koltuk:disabled {
+  opacity: 1;
+}
+
+.sb-koltuk-lejant .sb-koltuk-ornek {
+  --sb-koltuk-boyu: 1.25rem;
+}
+
+.sb-cinsiyet-erkek {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: var(--sb-koltuk-erkek);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: #4a7cc0;
+  --bs-btn-disabled-color: #fff;
+  --bs-btn-disabled-bg: var(--sb-koltuk-erkek);
+}
+
+.sb-cinsiyet-kadin {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: var(--sb-koltuk-kadin);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: #d15f88;
+  --bs-btn-disabled-color: #fff;
+  --bs-btn-disabled-bg: var(--sb-koltuk-kadin);
+}
+
+.sb-secim-listesi {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+}
+
+.sb-secim-listesi li {
+  display: inline-flex;
+  align-items: center;
+  gap: .25rem;
+  padding: .2rem .25rem .2rem .6rem;
+  font-size: .85rem;
+  background: #eaf6ef;
+  border: 1px solid #bfe3cd;
+  border-radius: 2rem;
+}
+
+.sb-secim-listesi .btn-close {
+  width: .6rem;
+  height: .6rem;
+  padding: .35rem;
+}
+
+/* Geniş ekranda seçim özeti sağ sütunda kaydırırken görünür kalır */
+@media (min-width: 992px) {
+  .sb-secim-ozeti {
+    position: sticky;
+    top: 1rem;
+  }
+}
+
+/* Mobilde seçim özeti ekranın altına yapışır; harita kaydırılırken toplam ve düğme görünür */
+@media (max-width: 991.98px) {
+  .sb-secim-sutunu {
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+  }
+
+  .sb-secim-ozeti {
+    border-radius: .75rem .75rem 0 0;
+    box-shadow: 0 -.25rem 1rem rgba(15, 38, 67, .12) !important;
+  }
+}
