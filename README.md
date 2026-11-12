@@ -115,13 +115,13 @@ Veritabanını sıfırlamak için: `dotnet ef database drop` ardından `dotnet e
 ├── SuBilet.slnx                 # çözüm dosyası
 └── SuBilet/                     # ASP.NET Core MVC projesi
     ├── Areas/Admin/             # yönetim paneli (/Admin, yalnızca Admin rolü)
-    ├── Controllers/             # Home (ana sayfa, arama formu), Hesap (kayıt/giriş), Seferler (arama sonuçları), SeferlerApi (/api/seferler)
+    ├── Controllers/             # Home (ana sayfa, arama formu), Hesap (kayıt/giriş), Seferler (arama sonuçları, koltuk seçimi), SeferlerApi (/api/seferler)
     ├── DTOs/                    # API'nin istek ve yanıt sınıfları
     ├── Data/                    # AppDbContext, seed verisi, Identity ayarları
     ├── Dogrulama/               # T.C. kimlik no ve telefon doğrulama attribute'ları
     ├── Migrations/              # EF Core migration'ları
     ├── Models/                  # varlıklar ve ViewModel'ler
-    ├── Servisler/               # sefer filtreleme ve sıralama
+    ├── Servisler/               # sefer filtreleme ve sıralama, koltuk planı (sıralar, yan koltuk)
     ├── Views/
     └── wwwroot/                 # css, js, kütüphaneler
 ```
@@ -154,7 +154,7 @@ PR'ı başka bir üye gözden geçirip birleştirir. Birleştirmeden önce `main
 | 2 | Tüm varlıklar, Fluent API ilişkileri, 81 il + firma seed verisi; Identity, roller, varsayılan yönetici; kayıt/giriş, T.C. kimlik no ve telefon doğrulaması | Tamamlandı |
 | 3 | Yönetim paneli; Şehir, Firma, Otobüs, Sefer CRUD; kullanıcı rol atama | Tamamlandı |
 | 4 | Sefer arama ve sonuç listesi; firma/saat filtreleri ve sıralama; Web API (/api/seferler) + Swagger | Tamamlandı |
-| 5 | Koltuk durumu servisi, koltuk haritası, yolcu bilgileri formu | – |
+| 5 | Koltuk durumu servisi, koltuk haritası, yolcu bilgileri formu | Devam ediyor (koltuk haritası hazır) |
 | 6 | Ödeme + bilet transaction'ı, simüle ödeme, PNR ve Biletlerim | – |
 | 7 | Bilet iptali, PNR ile sorgulama, profil, firma paneli | – |
 | 8 | Raporlar (Chart.js), PDF/QR bilet, API genişletme | – |
