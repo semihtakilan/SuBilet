@@ -80,4 +80,54 @@ public class SeferlerController : Controller
 
         return View(model);
     }
+
+    // Seçilen seferin koltuk haritası: /Seferler/Koltuklar/5
+    [HttpGet]
+    public async Task<IActionResult> Koltuklar(int id)
+    {
+        var sefer = await _context.Seferler
+            .AsNoTracking()
+            .Include(s => s.Firma)
+            .Include(s => s.Otobus)
+            .Include(s => s.KalkisSehir)
+            .Include(s => s.VarisSehir)
+            .FirstOrDefaultAsync(s => s.Id == id);
+
+        if (sefer == null || sefer.Otobus == null)
+        {
+            return NotFound();
+        }
+
+        if (sefer.Durum != SeferDurumu.Aktif || sefer.KalkisZamani <= DateTime.Now)
+        {
+            TempData["Hata"] = "Bu sefer için bilet satışı yapılmıyor.";
+            return RedirectToAction("Index", "Home");
+        }
+
+        var model = new KoltukSecimViewModel
+        {
+            SeferId = sefer.Id,
+            FirmaAdi = sefer.Firma?.Ad ?? "",
+            KalkisSehirId = sefer.KalkisSehirId ?? 0,
+            VarisSehirId = sefer.VarisSehirId ?? 0,
+            KalkisYeri = sefer.KalkisSehir?.Ad ?? "",
+            VarisYeri = sefer.VarisSehir?.Ad ?? "",
+            KalkisZamani = sefer.KalkisZamani ?? DateTime.MinValue,
+            VarisZamani = sefer.TahminiVarisZamani ?? (sefer.KalkisZamani ?? DateTime.MinValue),
+            Fiyat = sefer.Fiyat ?? 0m,
+            KoltukDuzeni = sefer.Otobus.KoltukDuzeni ?? KoltukDuzeni.IkiArtiIki,
+            KoltukSayisi = sefer.Otobus.KoltukSayisi ?? 0,
+            DoluKoltuklar = await DoluKoltuklariGetirAsync(sefer.Id)
+        };
+
+        return View(model);
+    }
+
+    // GEÇİCİ: 5. haftada Furkan'ın koltuk durumu servisi gelince onunla değiştirilecek.
+    // İptal edilen biletin koltuğu yeniden satılabildiği için boş sayılır.
+    private Task<Dictionary<int, Cinsiyet>> DoluKoltuklariGetirAsync(int seferId) =>
+        _context.Biletler
+            .AsNoTracking()
+            .Where(b => b.SeferId == seferId && b.Durum == BiletDurumu.Aktif)
+            .ToDictionaryAsync(b => b.KoltukNo, b => b.Cinsiyet);
 }
