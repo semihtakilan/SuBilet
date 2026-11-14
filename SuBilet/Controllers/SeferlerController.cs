@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SuBilet.Data;
 using SuBilet.Models;
@@ -39,7 +41,6 @@ public class SeferlerController : Controller
         var aramaTarihi = arama.Tarih.Value.Date;
         var ertesiGun = aramaTarihi.AddDays(1);
 
-        // Bugün için aramada kalkmış seferler listelenmez; aralık şimdiki saatten başlar.
         var simdi = DateTime.Now;
         var baslangic = aramaTarihi > simdi ? aramaTarihi : simdi;
 
@@ -94,7 +95,6 @@ public class SeferlerController : Controller
         return View(model);
     }
 
-    // Seçilen seferin koltuk haritası: /Seferler/Koltuklar/5
     [HttpGet]
     public async Task<IActionResult> Koltuklar(int id)
     {
@@ -136,8 +136,190 @@ public class SeferlerController : Controller
         return View(model);
     }
 
-    // GEÇİCİ: 5. haftada Furkan'ın koltuk durumu servisi gelince onunla değiştirilecek.
-    // İptal edilen biletin koltuğu yeniden satılabildiği için boş sayılır.
+    [Authorize]
+    [HttpGet]
+    public async Task<IActionResult> YolcuBilgileri(int id, List<SecilenKoltukInput> koltuklar)
+    {
+        var sefer = await SeferGetirAsync(id);
+        if (sefer == null || sefer.Otobus == null)
+        {
+            return NotFound();
+        }
+
+        if (sefer.Durum != SeferDurumu.Aktif || sefer.KalkisZamani <= DateTime.Now)
+        {
+            TempData["Hata"] = "Bu sefer için bilet satışı yapılmıyor.";
+            return RedirectToAction("Index", "Home");
+        }
+
+        var secimHatasi = await KoltukSecimleriniDogrulaAsync(sefer, koltuklar);
+        if (secimHatasi != null)
+        {
+            TempData["Hata"] = secimHatasi;
+            return RedirectToAction(nameof(Koltuklar), new { id });
+        }
+
+        var model = SeferOzetindenModelOlustur(sefer);
+        model.Yolcular = koltuklar
+            .OrderBy(k => k.KoltukNo)
+            .Select(k => new YolcuBilgisiItemViewModel
+            {
+                KoltukNo = k.KoltukNo,
+                Cinsiyet = k.Cinsiyet
+            })
+            .ToList();
+
+        return View(model);
+    }
+
+    [Authorize]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> YolcuBilgileri(YolcuBilgileriViewModel model)
+    {
+        var sefer = await SeferGetirAsync(model.SeferId);
+        if (sefer == null || sefer.Otobus == null)
+        {
+            return NotFound();
+        }
+
+        if (sefer.Durum != SeferDurumu.Aktif || sefer.KalkisZamani <= DateTime.Now)
+        {
+            TempData["Hata"] = "Bu sefer için bilet satışı yapılmıyor.";
+            return RedirectToAction("Index", "Home");
+        }
+
+        var secilenKoltuklar = model.Yolcular
+            .Select(y => new SecilenKoltukInput { KoltukNo = y.KoltukNo, Cinsiyet = y.Cinsiyet })
+            .ToList();
+
+        var secimHatasi = await KoltukSecimleriniDogrulaAsync(sefer, secilenKoltuklar);
+        if (secimHatasi != null)
+        {
+            TempData["Hata"] = secimHatasi;
+            return RedirectToAction(nameof(Koltuklar), new { id = model.SeferId });
+        }
+
+        var kullanilanTcler = new HashSet<string>();
+        for (int i = 0; i < model.Yolcular.Count; i++)
+        {
+            var yolcu = model.Yolcular[i];
+            yolcu.YolcuAd = yolcu.YolcuAd?.Trim() ?? string.Empty;
+            yolcu.YolcuSoyad = yolcu.YolcuSoyad?.Trim() ?? string.Empty;
+            yolcu.TcKimlikNo = yolcu.TcKimlikNo?.Trim() ?? string.Empty;
+
+            if (!string.IsNullOrEmpty(yolcu.TcKimlikNo))
+            {
+                if (!kullanilanTcler.Add(yolcu.TcKimlikNo))
+                {
+                    ModelState.AddModelError($"Yolcular[{i}].TcKimlikNo", "Aynı T.C. kimlik numarası birden fazla koltuk için kullanılamaz.");
+                }
+                else
+                {
+                    var seferdeBiletiVar = await _context.Biletler.AnyAsync(b =>
+                        b.SeferId == model.SeferId &&
+                        b.Durum == BiletDurumu.Aktif &&
+                        b.TcKimlikNo == yolcu.TcKimlikNo);
+
+                    if (seferdeBiletiVar)
+                    {
+                        ModelState.AddModelError($"Yolcular[{i}].TcKimlikNo", "Bu T.C. kimlik numarası ile bu seferde zaten aktif bir bilet bulunuyor.");
+                    }
+                }
+            }
+        }
+
+        var guncelOzet = SeferOzetindenModelOlustur(sefer);
+        model.FirmaAdi = guncelOzet.FirmaAdi;
+        model.KalkisYeri = guncelOzet.KalkisYeri;
+        model.VarisYeri = guncelOzet.VarisYeri;
+        model.KalkisZamani = guncelOzet.KalkisZamani;
+        model.VarisZamani = guncelOzet.VarisZamani;
+        model.BirimFiyat = guncelOzet.BirimFiyat;
+        model.KoltukDuzeni = guncelOzet.KoltukDuzeni;
+
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
+        TempData["BekleyenRezervasyon"] = JsonSerializer.Serialize(model);
+        TempData["Mesaj"] = "Yolcu bilgileri doğrulandı. Ödeme adımına geçmeye hazır.";
+        return View(model);
+    }
+
+    private Task<Sefer?> SeferGetirAsync(int seferId) =>
+        _context.Seferler
+            .AsNoTracking()
+            .Include(s => s.Firma)
+            .Include(s => s.Otobus)
+            .Include(s => s.KalkisSehir)
+            .Include(s => s.VarisSehir)
+            .FirstOrDefaultAsync(s => s.Id == seferId);
+
+    private static YolcuBilgileriViewModel SeferOzetindenModelOlustur(Sefer sefer) =>
+        new()
+        {
+            SeferId = sefer.Id,
+            FirmaAdi = sefer.Firma?.Ad ?? string.Empty,
+            KalkisYeri = sefer.KalkisSehir?.Ad ?? string.Empty,
+            VarisYeri = sefer.VarisSehir?.Ad ?? string.Empty,
+            KalkisZamani = sefer.KalkisZamani ?? DateTime.MinValue,
+            VarisZamani = sefer.TahminiVarisZamani ?? (sefer.KalkisZamani ?? DateTime.MinValue),
+            BirimFiyat = sefer.Fiyat ?? 0m,
+            KoltukDuzeni = sefer.Otobus?.KoltukDuzeni ?? KoltukDuzeni.IkiArtiIki
+        };
+
+    private async Task<string?> KoltukSecimleriniDogrulaAsync(Sefer sefer, List<SecilenKoltukInput> koltuklar)
+    {
+        if (koltuklar == null || koltuklar.Count == 0)
+        {
+            return "Devam etmek için en az bir koltuk seçmelisiniz.";
+        }
+
+        if (koltuklar.Count > KoltukSecimViewModel.EnFazlaKoltuk)
+        {
+            return $"Tek seferde en fazla {KoltukSecimViewModel.EnFazlaKoltuk} koltuk seçebilirsiniz.";
+        }
+
+        if (koltuklar.Select(k => k.KoltukNo).Distinct().Count() != koltuklar.Count)
+        {
+            return "Aynı koltuk birden fazla kez seçilemez.";
+        }
+
+        var koltukSayisi = sefer.Otobus?.KoltukSayisi ?? 0;
+        var koltukDuzeni = sefer.Otobus?.KoltukDuzeni ?? KoltukDuzeni.IkiArtiIki;
+        var doluKoltuklar = await DoluKoltuklariGetirAsync(sefer.Id);
+
+        foreach (var secim in koltuklar)
+        {
+            if (secim.KoltukNo < 1 || secim.KoltukNo > koltukSayisi)
+            {
+                return $"{secim.KoltukNo} numaralı koltuk bu otobüste bulunmuyor.";
+            }
+
+            if (secim.Cinsiyet != Cinsiyet.Erkek && secim.Cinsiyet != Cinsiyet.Kadin)
+            {
+                return $"{secim.KoltukNo} numaralı koltuk için geçerli bir cinsiyet seçilmelidir.";
+            }
+
+            if (doluKoltuklar.ContainsKey(secim.KoltukNo))
+            {
+                return $"{secim.KoltukNo} numaralı koltuk az önce doldu. Lütfen başka bir koltuk seçin.";
+            }
+
+            var yanKoltuk = KoltukPlani.YanKoltuk(secim.KoltukNo, koltukDuzeni, koltukSayisi);
+            if (yanKoltuk.HasValue &&
+                doluKoltuklar.TryGetValue(yanKoltuk.Value, out var yanCinsiyet) &&
+                yanCinsiyet != secim.Cinsiyet)
+            {
+                return $"{secim.KoltukNo} numaralı koltuk, yan koltuk cinsiyet kuralına uygun değil.";
+            }
+        }
+
+        return null;
+    }
+
     private Task<Dictionary<int, Cinsiyet>> DoluKoltuklariGetirAsync(int seferId) =>
         _context.Biletler
             .AsNoTracking()
