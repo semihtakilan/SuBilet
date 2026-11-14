@@ -21,9 +21,12 @@
 
             @if (!Model.Seferler.Any())
             {
-                <div class="alert alert-info text-center py-4 my-3">
-                    <p class="mb-0">Aradığınız kriterlere uygun sefer bulunamadı.</p>
-                </div>
+                @if (Model.Filtre != null && Model.Filtre.SeciliFiltreSayisi > 0)
+                {
+                    <div class="alert alert-warning text-center py-4 my-3">
+                        <p class="mb-0">Seçtiğiniz filtrelere uygun sefer bulunamadı. Filtreleri temizleyip tekrar deneyebilirsiniz.</p>
+                    </div>
+                }
             }
             else
             {

@@ -24,6 +24,18 @@ public class SeferlerController : Controller
             return RedirectToAction("Index", "Home");
         }
 
+        if (arama.KalkisSehirId == arama.VarisSehirId)
+        {
+            TempData["Hata"] = "Kalkış ve varış şehri aynı olamaz.";
+            return RedirectToAction("Index", "Home");
+        }
+
+        if (arama.Tarih.Value.Date < DateTime.Today)
+        {
+            TempData["Hata"] = "Geçmiş bir tarih için sefer araması yapılamaz.";
+            return RedirectToAction("Index", "Home");
+        }
+
         var aramaTarihi = arama.Tarih.Value.Date;
         var ertesiGun = aramaTarihi.AddDays(1);
 
@@ -59,7 +71,8 @@ public class SeferlerController : Controller
                 Fiyat = s.Fiyat ?? 0m,
                 KoltukDuzeni = s.Otobus != null ? (s.Otobus.KoltukDuzeni ?? default) : default,
                 Ozellikler = s.Otobus != null ? s.Otobus.Ozellikler : new List<string>(),
-                BosKoltukSayisi = (s.Otobus != null ? (s.Otobus.KoltukSayisi ?? 0) : 0) - s.Biletler.Count
+                BosKoltukSayisi = (s.Otobus != null ? (s.Otobus.KoltukSayisi ?? 0) : 0)
+                                   - s.Biletler.Count(b => b.Durum != BiletDurumu.Iptal)
             })
             .ToListAsync();
 
