@@ -1,0 +1,157 @@
+@using System.Globalization
+@model SuBilet.Models.ViewModels.KoltukSecimViewModel
+@{
+    ViewData["Title"] = $"{Model.KalkisYeri} - {Model.VarisYeri} Koltuk Seçimi";
+    var sure = Model.VarisZamani - Model.KalkisZamani;
+    var sureMetni = sure.Minutes == 0 ? $"{(int)sure.TotalHours} sa" : $"{(int)sure.TotalHours} sa {sure.Minutes} dk";
+    var duzenSinifi = Model.KoltukDuzeni == KoltukDuzeni.IkiArtiIki ? "sb-duzen-22" : "sb-duzen-21";
+    var turkce = CultureInfo.GetCultureInfo("tr-TR");
+
+    // Tek bir koltuk: dolu koltuk yolcunun cinsiyetine göre renklenir ve seçilemez.
+    // data-yan, yan koltuk cinsiyet kuralı için yanındaki koltuğun numarasıdır.
+    void KoltukCiz(int? no)
+    {
+        if (no == null)
+        {
+            <span aria-hidden="true"></span>
+            return;
+        }
+
+        var yan = Model.YanKoltuk(no.Value);
+        if (Model.DoluKoltuklar.TryGetValue(no.Value, out var cinsiyet))
+        {
+            var aciklama = $"{no} numaralı koltuk, dolu ({cinsiyet.Ad().ToLower(turkce)} yolcu)";
+            <button type="button" class="sb-koltuk @(cinsiyet == Cinsiyet.Kadin ? "sb-koltuk-kadin" : "sb-koltuk-erkek")"
+                    data-no="@no" data-yan="@yan" data-cinsiyet="@((int)cinsiyet)"
+                    disabled title="@aciklama" aria-label="@aciklama">@no</button>
+        }
+        else
+        {
+            <button type="button" class="sb-koltuk" data-no="@no" data-yan="@yan"
+                    aria-pressed="false" aria-label="@no numaralı koltuk, boş">@no</button>
+        }
+    }
+}
+
+<div class="container my-4">
+    <a asp-action="Index"
+       asp-route-KalkisSehirId="@Model.KalkisSehirId"
+       asp-route-VarisSehirId="@Model.VarisSehirId"
+       asp-route-Tarih="@Model.KalkisZamani.ToString("yyyy-MM-dd")"
+       class="btn btn-link px-0 mb-2">&larr; Seferlere dön</a>
+
+    <section class="sb-koltuk-ozet mb-3">
+        <div>
+            <h1 class="h4 mb-1">@Model.KalkisYeri &rarr; @Model.VarisYeri</h1>
+            <p class="mb-0 text-secondary">
+                @Model.FirmaAdi ·
+                @Model.KalkisZamani.ToString("d MMMM yyyy dddd") ·
+                @Model.KalkisZamani.ToString("HH:mm") - @Model.VarisZamani.ToString("HH:mm") (@sureMetni)
+            </p>
+        </div>
+        <div class="text-lg-end">
+            <div class="sb-koltuk-fiyat">@Model.Fiyat.ToString("C2")</div>
+            <small class="text-secondary">@Model.KoltukDuzeni.Ad() · @Model.BosKoltukSayisi boş koltuk</small>
+        </div>
+    </section>
+
+    <div class="row g-3 align-items-start">
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h2 class="h6 mb-3">Koltuk seçin</h2>
+
+                    <ul class="sb-koltuk-lejant list-unstyled mb-3">
+                        <li><span class="sb-koltuk sb-koltuk-ornek"></span> Boş</li>
+                        <li><span class="sb-koltuk sb-koltuk-ornek sb-koltuk-secili"></span> Seçtiğiniz</li>
+                        <li><span class="sb-koltuk sb-koltuk-ornek sb-koltuk-erkek"></span> Dolu (erkek)</li>
+                        <li><span class="sb-koltuk sb-koltuk-ornek sb-koltuk-kadin"></span> Dolu (kadın)</li>
+                    </ul>
+
+                    @* Otobüsün üstten görünüşü: ön tarafı yukarıda. Koltuk numaraları ve yan koltuklar
+                       Servisler/KoltukPlani.cs'te hesaplanır; seçim wwwroot/js/koltuk-secimi.js ile yapılır. *@
+                    <div class="sb-otobus">
+                        <div class="sb-otobus-on">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none"
+                                 stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                                <circle cx="12" cy="12" r="9" />
+                                <circle cx="12" cy="12" r="2.5" />
+                                <path d="M3.5 10.5h6M14.5 10.5h6M12 14.5V21" />
+                            </svg>
+                            <span>Ön</span>
+                        </div>
+
+                        <div id="koltukHaritasi"
+                             class="sb-koltuk-izgara @duzenSinifi"
+                             data-en-fazla="@KoltukSecimViewModel.EnFazlaKoltuk"
+                             data-fiyat="@Model.Fiyat.ToString(CultureInfo.InvariantCulture)">
+                            @foreach (var sira in Model.Siralar)
+                            {
+                                @foreach (var no in sira.Sol)
+                                {
+                                    KoltukCiz(no);
+                                }
+                                <span class="sb-koridor" aria-hidden="true"></span>
+                                @foreach (var no in sira.Sag)
+                                {
+                                    KoltukCiz(no);
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5 sb-secim-sutunu">
+            <div class="card border-0 shadow-sm sb-secim-ozeti">
+                <div class="card-body">
+                    <h2 class="h6 mb-2">Seçilen koltuklar</h2>
+                    <p id="secimBos" class="small text-secondary mb-2">
+                        Haritadan en fazla @KoltukSecimViewModel.EnFazlaKoltuk koltuk seçebilirsiniz.
+                    </p>
+                    <ul id="secimListesi" class="sb-secim-listesi list-unstyled mb-2"></ul>
+                    <div id="secimUyari" class="small text-danger mb-2" role="status" aria-live="polite"></div>
+
+                    <div class="d-flex justify-content-between align-items-center gap-3">
+                        <div>
+                            <small class="text-secondary d-block">Toplam</small>
+                            <strong id="secimToplam" class="fs-5">@(0m.ToString("C2"))</strong>
+                        </div>
+                        @* Seçilen koltuklar ve cinsiyetler yolcu bilgileri adımına taşınır:
+                           Koltuklar[0].KoltukNo=12&Koltuklar[0].Cinsiyet=2 ... *@
+                        <form asp-action="YolcuBilgileri" asp-route-id="@Model.SeferId" method="get" id="secimFormu">
+                            <div id="secimAlanlari"></div>
+                            <button type="submit" id="secimDevam" class="btn btn-primary" disabled>Devam Et</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Boş koltuğa dokunulunca yolcunun cinsiyeti sorulur *@
+<div class="modal fade" id="cinsiyetModal" tabindex="-1" aria-labelledby="cinsiyetBaslik" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title h6" id="cinsiyetBaslik">Koltuk</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+            </div>
+            <div class="modal-body">
+                <p class="small mb-3">Bu koltukta seyahat edecek yolcunun cinsiyetini seçin.</p>
+                <div class="d-grid gap-2">
+                    <button type="button" class="btn sb-cinsiyet-erkek" data-cinsiyet="@((int)Cinsiyet.Erkek)">Erkek</button>
+                    <button type="button" class="btn sb-cinsiyet-kadin" data-cinsiyet="@((int)Cinsiyet.Kadin)">Kadın</button>
+                </div>
+                <p id="cinsiyetNotu" class="small text-danger mt-3 mb-0" hidden></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script src="~/js/koltuk-secimi.js" asp-append-version="true"></script>
+}
