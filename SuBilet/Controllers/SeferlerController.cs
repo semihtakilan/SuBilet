@@ -12,10 +12,12 @@ namespace SuBilet.Controllers;
 public class SeferlerController : Controller
 {
     private readonly AppDbContext _context;
+    private readonly KoltukDurumServisi _koltukDurumServisi;
 
-    public SeferlerController(AppDbContext context)
+    public SeferlerController(AppDbContext context, KoltukDurumServisi koltukDurumServisi)
     {
         _context = context;
+        _koltukDurumServisi = koltukDurumServisi;
     }
 
     [HttpGet]
@@ -130,7 +132,7 @@ public class SeferlerController : Controller
             Fiyat = sefer.Fiyat ?? 0m,
             KoltukDuzeni = sefer.Otobus.KoltukDuzeni ?? KoltukDuzeni.IkiArtiIki,
             KoltukSayisi = sefer.Otobus.KoltukSayisi ?? 0,
-            DoluKoltuklar = await DoluKoltuklariGetirAsync(sefer.Id)
+            DoluKoltuklar = await _koltukDurumServisi.DoluKoltuklariGetirAsync(sefer.Id)
         };
 
         return View(model);
@@ -289,7 +291,7 @@ public class SeferlerController : Controller
 
         var koltukSayisi = sefer.Otobus?.KoltukSayisi ?? 0;
         var koltukDuzeni = sefer.Otobus?.KoltukDuzeni ?? KoltukDuzeni.IkiArtiIki;
-        var doluKoltuklar = await DoluKoltuklariGetirAsync(sefer.Id);
+        var doluKoltuklar = await _koltukDurumServisi.DoluKoltuklariGetirAsync(sefer.Id);
 
         foreach (var secim in koltuklar)
         {
@@ -319,10 +321,4 @@ public class SeferlerController : Controller
 
         return null;
     }
-
-    private Task<Dictionary<int, Cinsiyet>> DoluKoltuklariGetirAsync(int seferId) =>
-        _context.Biletler
-            .AsNoTracking()
-            .Where(b => b.SeferId == seferId && b.Durum == BiletDurumu.Aktif)
-            .ToDictionaryAsync(b => b.KoltukNo, b => b.Cinsiyet);
 }

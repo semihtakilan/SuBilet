@@ -1,15 +1,17 @@
-using System.Globalization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using SuBilet.Data;
 using SuBilet.Models;
+using SuBilet.Servisler;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<KoltukDurumServisi>();
 
 // Bağlantı dizesi depoda değil, User Secrets'ta tutulur (README > Kurulum).
 var baglantiDizesi = builder.Configuration.GetConnectionString("SuBiletDb")
