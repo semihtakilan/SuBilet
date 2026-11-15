@@ -61,6 +61,14 @@ Varsayılan yönetici (`admin@subilet.com`) şifresi. En az 8 karakter; büyük 
 dotnet user-secrets set "VarsayilanYonetici:Sifre" "SuBilet.2026"
 ```
 
+Mobil uygulamanın kullandığı JWT imza anahtarı. En az 32 karakter, rastgele olsun:
+
+```bash
+dotnet user-secrets set "Jwt:Anahtar" "$(openssl rand -base64 48)"
+```
+
+Verilmezse geliştirmede her açılışta geçici bir anahtar üretilir; bu durumda uygulama yeniden başlayınca mobildeki oturumlar düşer. Development dışında anahtar zorunludur.
+
 ### 5. Veritabanını oluşturun
 
 ```bash
@@ -77,7 +85,17 @@ dotnet run        # ya da dosya kaydettikçe yenilenmesi için: dotnet watch
 
 Tarayıcıda **http://localhost:5214** adresini açın. İlk açılışta roller (Admin, FirmaYetkilisi, Yolcu) ve yönetici hesabı kendiliğinden oluşur.
 
-Sefer API'sini (`/api/seferler`) denemek için Swagger UI: **http://localhost:5214/swagger** (yalnızca Development ortamında açılır).
+API'yi denemek için Swagger UI: **http://localhost:5214/swagger** (yalnızca Development ortamında açılır).
+
+| Uç nokta | Açıklama |
+|---|---|
+| `GET/POST/PUT/DELETE /api/seferler` | Seferler |
+| `GET /api/sehirler` | 81 il, Türkçe alfabe sırasıyla |
+| `POST /api/hesap/kayit` | Yolcu kaydı; token döner (aynı e-posta: 409) |
+| `POST /api/hesap/giris` | Giriş; token döner (hatalı: 401, 5 hatada kilit: 423) |
+| `GET /api/hesap/ben` | Token'ın sahibi (token gerekir) |
+
+Token isteyen bir uç noktayı Swagger'da denemek için önce `/api/hesap/giris`'i çalıştırın, yanıttaki `token`'ı kopyalayın, sağ üstteki **Authorize** düğmesine yapıştırın. Mobil uygulama token'ı her istekte `Authorization: Bearer <token>` başlığıyla gönderir; web sitesi çerezle çalışmaya devam eder.
 
 ### 7. Giriş yapın
 
@@ -90,7 +108,8 @@ Sefer API'sini (`/api/seferler`) denemek için Swagger UI: **http://localhost:52
    ```json
    {
      "ConnectionStrings": { "SuBiletDb": "Host=localhost;Port=5432;Database=subilet;Username=postgres;Password=SIFRENIZ" },
-     "VarsayilanYonetici": { "Sifre": "SuBilet.2026" }
+     "VarsayilanYonetici": { "Sifre": "SuBilet.2026" },
+     "Jwt": { "Anahtar": "EN_AZ_32_KARAKTERLIK_RASTGELE_BIR_METIN_YAZIN" }
    }
    ```
 3. Package Manager Console'da `Update-Database` çalıştırın.
@@ -115,13 +134,13 @@ Veritabanını sıfırlamak için: `dotnet ef database drop` ardından `dotnet e
 ├── SuBilet.slnx                 # çözüm dosyası
 └── SuBilet/                     # ASP.NET Core MVC projesi
     ├── Areas/Admin/             # yönetim paneli (/Admin, yalnızca Admin rolü)
-    ├── Controllers/             # Home (ana sayfa, arama formu), Hesap (kayıt/giriş), Seferler (arama sonuçları, koltuk seçimi), SeferlerApi (/api/seferler)
+    ├── Controllers/             # Home (ana sayfa, arama formu), Hesap (kayıt/giriş), Seferler (arama sonuçları, koltuk seçimi), SeferlerApi, SehirlerApi, HesapApi (/api/...)
     ├── DTOs/                    # API'nin istek ve yanıt sınıfları
     ├── Data/                    # AppDbContext, seed verisi, Identity ayarları
     ├── Dogrulama/               # T.C. kimlik no ve telefon doğrulama attribute'ları
     ├── Migrations/              # EF Core migration'ları
     ├── Models/                  # varlıklar ve ViewModel'ler
-    ├── Servisler/               # sefer filtreleme ve sıralama, koltuk planı (sıralar, yan koltuk)
+    ├── Servisler/               # sefer filtreleme ve sıralama, koltuk planı ve koltuk durumu, JWT üretimi
     ├── Views/
     └── wwwroot/                 # css, js, kütüphaneler
 ```
@@ -154,7 +173,7 @@ PR'ı başka bir üye gözden geçirip birleştirir. Birleştirmeden önce `main
 | 2 | Tüm varlıklar, Fluent API ilişkileri, 81 il + firma seed verisi; Identity, roller, varsayılan yönetici; kayıt/giriş, T.C. kimlik no ve telefon doğrulaması | Tamamlandı |
 | 3 | Yönetim paneli; Şehir, Firma, Otobüs, Sefer CRUD; kullanıcı rol atama | Tamamlandı |
 | 4 | Sefer arama ve sonuç listesi; firma/saat filtreleri ve sıralama; Web API (/api/seferler) + Swagger | Tamamlandı |
-| 5 | Koltuk durumu servisi, koltuk haritası, yolcu bilgileri formu | Devam ediyor (koltuk haritası hazır) |
+| 5 | Koltuk durumu servisi, koltuk haritası, yolcu bilgileri formu; mobil için JWT, /api/hesap ve /api/sehirler | Tamamlandı |
 | 6 | Ödeme + bilet transaction'ı, simüle ödeme, PNR ve Biletlerim | – |
 | 7 | Bilet iptali, PNR ile sorgulama, profil, firma paneli | – |
 | 8 | Raporlar (Chart.js), PDF/QR bilet, API genişletme | – |
