@@ -1,0 +1,149 @@
+@model SuBilet.Models.ViewModels.YolcuBilgileriViewModel
+@{
+    ViewData["Title"] = $"{Model.KalkisYeri} - {Model.VarisYeri} Yolcu Bilgileri";
+    var sure = Model.VarisZamani - Model.KalkisZamani;
+    var sureMetni = sure.Minutes == 0 ? $"{(int)sure.TotalHours} sa" : $"{(int)sure.TotalHours} sa {sure.Minutes} dk";
+}
+
+<div class="container my-4">
+    <a asp-action="Koltuklar" asp-route-id="@Model.SeferId" class="btn btn-link px-0 mb-2">&larr; Koltuk seçimine dön</a>
+
+    @if (TempData["Mesaj"] is string mesaj)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @mesaj
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Kapat"></button>
+        </div>
+    }
+
+    <section class="sb-koltuk-ozet mb-3">
+        <div>
+            <h1 class="h4 mb-1">@Model.KalkisYeri &rarr; @Model.VarisYeri</h1>
+            <p class="mb-0 text-secondary">
+                @Model.FirmaAdi ·
+                @Model.KalkisZamani.ToString("d MMMM yyyy dddd") ·
+                @Model.KalkisZamani.ToString("HH:mm") - @Model.VarisZamani.ToString("HH:mm") (@sureMetni)
+            </p>
+        </div>
+        <div class="text-lg-end">
+            <div class="sb-koltuk-fiyat">@Model.ToplamTutar.ToString("C2")</div>
+            <small class="text-secondary">@Model.Yolcular.Count yolcu · @Model.KoltukDuzeni.Ad()</small>
+        </div>
+    </section>
+
+    <form asp-action="YolcuBilgileri" method="post" id="yolcuFormu">
+        <input type="hidden" asp-for="SeferId" />
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3"></div>
+
+        <div class="row g-3 align-items-start">
+            <div class="col-lg-8">
+                @for (int i = 0; i < Model.Yolcular.Count; i++)
+                {
+                    var yolcu = Model.Yolcular[i];
+                    var cinsiyetRozetSinifi = yolcu.Cinsiyet == Cinsiyet.Kadin ? "sb-cinsiyet-kadin" : "sb-cinsiyet-erkek";
+
+                    <div class="card border-0 shadow-sm mb-3">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-dark fs-6">Koltuk @yolcu.KoltukNo</span>
+                                <span class="fw-semibold">@(i + 1). Yolcu Bilgileri</span>
+                            </div>
+                            <span class="badge @cinsiyetRozetSinifi px-3 py-2">@yolcu.Cinsiyet.Ad()</span>
+                        </div>
+                        <div class="card-body">
+                            <input type="hidden" asp-for="Yolcular[i].KoltukNo" />
+                            <input type="hidden" asp-for="Yolcular[i].Cinsiyet" />
+
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label asp-for="Yolcular[i].YolcuAd" class="form-label"></label>
+                                    <input asp-for="Yolcular[i].YolcuAd" class="form-control" placeholder="Ad" autocomplete="given-name" />
+                                    <span asp-validation-for="Yolcular[i].YolcuAd" class="text-danger small"></span>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label asp-for="Yolcular[i].YolcuSoyad" class="form-label"></label>
+                                    <input asp-for="Yolcular[i].YolcuSoyad" class="form-control" placeholder="Soyad" autocomplete="family-name" />
+                                    <span asp-validation-for="Yolcular[i].YolcuSoyad" class="text-danger small"></span>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label asp-for="Yolcular[i].TcKimlikNo" class="form-label"></label>
+                                    <input asp-for="Yolcular[i].TcKimlikNo" class="form-control sb-tc-input" placeholder="11 haneli T.C. No" />
+                                    <span asp-validation-for="Yolcular[i].TcKimlikNo" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="col-lg-4 sb-secim-sutunu">
+                <div class="card border-0 shadow-sm sb-secim-ozeti">
+                    <div class="card-body">
+                        <h2 class="h6 mb-3">Bilet Özeti</h2>
+
+                        <ul class="list-unstyled small mb-3">
+                            @foreach (var yolcu in Model.Yolcular)
+                            {
+                                <li class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                    <span>
+                                        <strong>Koltuk @yolcu.KoltukNo</strong> · @yolcu.Cinsiyet.Ad()
+                                    </span>
+                                    <span>@Model.BirimFiyat.ToString("C2")</span>
+                                </li>
+                            }
+                        </ul>
+
+                        <div id="tcTekrarUyari" class="small text-danger mb-2" role="status" aria-live="polite"></div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-secondary">Toplam Tutar</span>
+                            <strong class="fs-5">@Model.ToplamTutar.ToString("C2")</strong>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">Bilgileri Onayla ve Devam Et</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/dogrulama.js" asp-append-version="true"></script>
+    <script>
+        (function () {
+            const form = document.getElementById("yolcuFormu");
+            const uyari = document.getElementById("tcTekrarUyari");
+            const tcInputs = () => Array.from(document.querySelectorAll(".sb-tc-input"));
+
+            function ayniTcKontrol() {
+                const degerler = tcInputs()
+                    .map(i => i.value.trim())
+                    .filter(v => v.length === 11);
+                const benzersiz = new Set(degerler);
+                if (degerler.length !== benzersiz.size) {
+                    uyari.textContent = "Aynı T.C. kimlik numarası birden fazla yolcu için girilemez.";
+                    return false;
+                }
+                uyari.textContent = "";
+                return true;
+            }
+
+            tcInputs().forEach(input => {
+                input.addEventListener("input", function () {
+                    this.value = this.value.replace(/\D/g, "").slice(0, 11);
+                    ayniTcKontrol();
+                });
+            });
+
+            form.addEventListener("submit", function (e) {
+                if (!ayniTcKontrol()) {
+                    e.preventDefault();
+                }
+            });
+        })();
+    </script>
+}
