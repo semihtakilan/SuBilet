@@ -12,7 +12,17 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition(JwtSwaggerFiltresi.SemaAdi, new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        Description = "/api/hesap/giris yanıtındaki token'ı yapıştırın (başına \"Bearer\" yazmadan)."
+    });
+    options.OperationFilter<JwtSwaggerFiltresi>();
+});
 builder.Services.AddScoped<KoltukDurumServisi>();
 
 // Bağlantı dizesi depoda değil, User Secrets'ta tutulur (README > Kurulum).

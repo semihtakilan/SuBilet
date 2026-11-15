@@ -43,7 +43,8 @@ namespace SuBilet.Controllers
             var sonuc = await _kullaniciYoneticisi.CreateAsync(kullanici, dto.Sifre);
             if (!sonuc.Succeeded)
             {
-                var mesaj = string.Join(" ", sonuc.Errors.Select(h => h.Description));
+                // Kullanıcı adı e-postanın kendisi olduğundan aynı hata iki kez gelebilir
+                var mesaj = string.Join(" ", sonuc.Errors.Select(h => h.Description).Distinct());
                 bool epostaKayitli = sonuc.Errors.Any(h =>
                     h.Code is nameof(IdentityErrorDescriber.DuplicateEmail)
                         or nameof(IdentityErrorDescriber.DuplicateUserName));
