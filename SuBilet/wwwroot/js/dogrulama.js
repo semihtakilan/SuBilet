@@ -63,3 +63,54 @@ $.validator.unobtrusive.adapters.add("telefonno", ["sadececep"], function (optio
     options.rules["telefonno"] = { sadeceCep: options.params.sadececep === "true" };
     options.messages["telefonno"] = options.message;
 });
+
+// [KartNumarasi] ve [SonKullanmaTarihi] attribute'larının tarayıcı tarafı
+// (kurallar Dogrulama/KartNumarasiAttribute.cs ve SonKullanmaTarihiAttribute.cs ile aynı).
+// Geçerliyse null, değilse sunucudakiyle aynı mesajı döndürürler.
+function kartNumarasiHatasi(deger) {
+    var haneler = String(deger).replace(/\D/g, "");
+    if (haneler.length !== 16) return "Kart numarası 16 haneli olmalıdır.";
+
+    var toplam = 0;
+    var ikiKati = false;
+    for (var i = haneler.length - 1; i >= 0; i--) {
+        var hane = Number(haneler[i]);
+        if (ikiKati) {
+            hane *= 2;
+            if (hane > 9) hane -= 9;
+        }
+        toplam += hane;
+        ikiKati = !ikiKati;
+    }
+    return toplam % 10 === 0 ? null : "Kart numarası geçersiz.";
+}
+
+function sonKullanmaHatasi(deger) {
+    var eslesme = /^(\d{2})\/(\d{2})$/.exec(String(deger).trim());
+    if (!eslesme) return "Son kullanma tarihini AA/YY biçiminde girin.";
+
+    var ay = Number(eslesme[1]);
+    var yil = 2000 + Number(eslesme[2]);
+    if (ay < 1 || ay > 12) return "Ay 01 ile 12 arasında olmalıdır.";
+
+    // Kart, yazan ayın sonuna kadar geçerlidir; içinde bulunulan ay kabul edilir
+    var bugun = new Date();
+    if (yil * 12 + ay < bugun.getFullYear() * 12 + bugun.getMonth() + 1) return "Kartın son kullanma tarihi geçmiş.";
+    return yil > bugun.getFullYear() + 20 ? "Son kullanma tarihi geçersiz." : null;
+}
+
+// Hata mesajı, girilen değere göre kuraldan gelir
+function mesajliKuralEkle(ad, hataBul) {
+    $.validator.addMethod(ad, function (value, element) {
+        return this.optional(element) || hataBul(value) === null;
+    });
+    $.validator.unobtrusive.adapters.add(ad, [], function (options) {
+        options.rules[ad] = true;
+        options.messages[ad] = function () {
+            return hataBul(options.element.value) || options.message;
+        };
+    });
+}
+
+mesajliKuralEkle("kartnumarasi", kartNumarasiHatasi);
+mesajliKuralEkle("sonkullanma", sonKullanmaHatasi);
