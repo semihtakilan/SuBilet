@@ -125,6 +125,8 @@ Token isteyen bir uç noktayı Swagger'da denemek için önce `/api/hesap/giris`
 | `relation "AspNetRoles" does not exist` | 5. adım (`dotnet ef database update`) yapılmamış. |
 | Yönetici girişi olmuyor | Yönetici şifresi ilk çalıştırmadan önce verilmemiş ya da kurallara uymuyor. Şifreyi verip uygulamayı yeniden başlatın. |
 
+Bilet almak için bir sefer seçip koltuk ve yolcu bilgilerini girin; ödeme sayfası simülasyondur, kartınızdan para çekilmez. Deneme kartı: `4111 1111 1111 1111`, son kullanma tarihi olarak bu ay ya da sonrası, CVV olarak herhangi 3 hane. Veritabanına kartın yalnızca son 4 hanesi yazılır.
+
 Veritabanını sıfırlamak için: `dotnet ef database drop` ardından `dotnet ef database update`.
 
 ## Proje yapısı
@@ -134,13 +136,13 @@ Veritabanını sıfırlamak için: `dotnet ef database drop` ardından `dotnet e
 ├── SuBilet.slnx                 # çözüm dosyası
 └── SuBilet/                     # ASP.NET Core MVC projesi
     ├── Areas/Admin/             # yönetim paneli (/Admin, yalnızca Admin rolü)
-    ├── Controllers/             # Home (ana sayfa, arama formu), Hesap (kayıt/giriş), Seferler (arama sonuçları, koltuk seçimi), SeferlerApi, SehirlerApi, HesapApi (/api/...)
+    ├── Controllers/             # Home (ana sayfa, arama formu), Hesap (kayıt/giriş), Seferler (arama sonuçları, koltuk seçimi, yolcu bilgileri), Odeme (simüle ödeme), SeferlerApi, SehirlerApi, HesapApi (/api/...)
     ├── DTOs/                    # API'nin istek ve yanıt sınıfları
     ├── Data/                    # AppDbContext, seed verisi, Identity ayarları
-    ├── Dogrulama/               # T.C. kimlik no ve telefon doğrulama attribute'ları
+    ├── Dogrulama/               # T.C. kimlik no, telefon, kart numarası (Luhn) ve son kullanma tarihi doğrulama attribute'ları
     ├── Migrations/              # EF Core migration'ları
     ├── Models/                  # varlıklar ve ViewModel'ler
-    ├── Servisler/               # sefer filtreleme ve sıralama, koltuk planı ve koltuk durumu, JWT üretimi
+    ├── Servisler/               # sefer filtreleme ve sıralama, koltuk planı ve koltuk durumu, bilet satışı, JWT üretimi
     ├── Views/
     └── wwwroot/                 # css, js, kütüphaneler
 ```
@@ -174,7 +176,7 @@ PR'ı başka bir üye gözden geçirip birleştirir. Birleştirmeden önce `main
 | 3 | Yönetim paneli; Şehir, Firma, Otobüs, Sefer CRUD; kullanıcı rol atama | Tamamlandı |
 | 4 | Sefer arama ve sonuç listesi; firma/saat filtreleri ve sıralama; Web API (/api/seferler) + Swagger | Tamamlandı |
 | 5 | Koltuk durumu servisi, koltuk haritası, yolcu bilgileri formu; mobil için JWT, /api/hesap ve /api/sehirler | Tamamlandı |
-| 6 | Ödeme + bilet transaction'ı, simüle ödeme, PNR ve Biletlerim | – |
+| 6 | Ödeme + bilet transaction'ı, simüle ödeme, PNR ve Biletlerim | Devam ediyor (simüle ödeme sayfası hazır) |
 | 7 | Bilet iptali, PNR ile sorgulama, profil, firma paneli | – |
 | 8 | Raporlar (Chart.js), PDF/QR bilet, API genişletme | – |
 | 9 | Testler, hata sayfaları, mobil kontrol, README tamamlama | – |
