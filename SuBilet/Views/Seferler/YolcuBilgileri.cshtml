@@ -8,14 +8,6 @@
 <div class="container my-4">
     <a asp-action="Koltuklar" asp-route-id="@Model.SeferId" class="btn btn-link px-0 mb-2">&larr; Koltuk seçimine dön</a>
 
-    @if (TempData["Mesaj"] is string mesaj)
-    {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            @mesaj
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Kapat"></button>
-        </div>
-    }
-
     <section class="sb-koltuk-ozet mb-3">
         <div>
             <h1 class="h4 mb-1">@Model.KalkisYeri &rarr; @Model.VarisYeri</h1>
