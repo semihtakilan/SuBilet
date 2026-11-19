@@ -272,53 +272,14 @@ public class SeferlerController : Controller
             KoltukDuzeni = sefer.Otobus?.KoltukDuzeni ?? KoltukDuzeni.IkiArtiIki
         };
 
-    private async Task<string?> KoltukSecimleriniDogrulaAsync(Sefer sefer, List<SecilenKoltukInput> koltuklar)
+    // Koltuk ve yan koltuk cinsiyet kuralı KoltukDurumServisi'nde kontrol edilir
+    private async Task<string?> KoltukSecimleriniDogrulaAsync(Sefer sefer, List<SecilenKoltukInput>? koltuklar)
     {
-        if (koltuklar == null || koltuklar.Count == 0)
-        {
-            return "Devam etmek için en az bir koltuk seçmelisiniz.";
-        }
+        var secimler = (koltuklar ?? [])
+            .Select(k => (k.KoltukNo, k.Cinsiyet))
+            .ToList();
 
-        if (koltuklar.Count > KoltukSecimViewModel.EnFazlaKoltuk)
-        {
-            return $"Tek seferde en fazla {KoltukSecimViewModel.EnFazlaKoltuk} koltuk seçebilirsiniz.";
-        }
-
-        if (koltuklar.Select(k => k.KoltukNo).Distinct().Count() != koltuklar.Count)
-        {
-            return "Aynı koltuk birden fazla kez seçilemez.";
-        }
-
-        var koltukSayisi = sefer.Otobus?.KoltukSayisi ?? 0;
-        var koltukDuzeni = sefer.Otobus?.KoltukDuzeni ?? KoltukDuzeni.IkiArtiIki;
-        var doluKoltuklar = await _koltukDurumServisi.DoluKoltuklariGetirAsync(sefer.Id);
-
-        foreach (var secim in koltuklar)
-        {
-            if (secim.KoltukNo < 1 || secim.KoltukNo > koltukSayisi)
-            {
-                return $"{secim.KoltukNo} numaralı koltuk bu otobüste bulunmuyor.";
-            }
-
-            if (secim.Cinsiyet != Cinsiyet.Erkek && secim.Cinsiyet != Cinsiyet.Kadin)
-            {
-                return $"{secim.KoltukNo} numaralı koltuk için geçerli bir cinsiyet seçilmelidir.";
-            }
-
-            if (doluKoltuklar.ContainsKey(secim.KoltukNo))
-            {
-                return $"{secim.KoltukNo} numaralı koltuk az önce doldu. Lütfen başka bir koltuk seçin.";
-            }
-
-            var yanKoltuk = KoltukPlani.YanKoltuk(secim.KoltukNo, koltukDuzeni, koltukSayisi);
-            if (yanKoltuk.HasValue &&
-                doluKoltuklar.TryGetValue(yanKoltuk.Value, out var yanCinsiyet) &&
-                yanCinsiyet != secim.Cinsiyet)
-            {
-                return $"{secim.KoltukNo} numaralı koltuk, yan koltuk cinsiyet kuralına uygun değil.";
-            }
-        }
-
-        return null;
+        var (basarili, hataMesaji) = await _koltukDurumServisi.SecimiDogrulaAsync(sefer.Id, secimler);
+        return basarili ? null : hataMesaji;
     }
 }
