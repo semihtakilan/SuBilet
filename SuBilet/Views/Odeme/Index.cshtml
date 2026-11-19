@@ -1,0 +1,109 @@
+@model OdemeViewModel
+@{
+    var rezervasyon = Model.Rezervasyon;
+    ViewData["Title"] = $"{rezervasyon.KalkisYeri} - {rezervasyon.VarisYeri} Ödeme";
+    var sure = rezervasyon.VarisZamani - rezervasyon.KalkisZamani;
+    var sureMetni = sure.Minutes == 0 ? $"{(int)sure.TotalHours} sa" : $"{(int)sure.TotalHours} sa {sure.Minutes} dk";
+}
+
+<div class="container my-4">
+    <a asp-controller="Seferler" asp-action="Koltuklar" asp-route-id="@rezervasyon.SeferId" class="btn btn-link px-0 mb-2">&larr; Koltuk seçimine dön</a>
+
+    <section class="sb-koltuk-ozet mb-3">
+        <div>
+            <h1 class="h4 mb-1">@rezervasyon.KalkisYeri &rarr; @rezervasyon.VarisYeri</h1>
+            <p class="mb-0 text-secondary">
+                @rezervasyon.FirmaAdi ·
+                @rezervasyon.KalkisZamani.ToString("d MMMM yyyy dddd") ·
+                @rezervasyon.KalkisZamani.ToString("HH:mm") - @rezervasyon.VarisZamani.ToString("HH:mm") (@sureMetni)
+            </p>
+        </div>
+        <div class="text-lg-end">
+            <div class="sb-koltuk-fiyat">@rezervasyon.ToplamTutar.ToString("C2")</div>
+            <small class="text-secondary">@rezervasyon.Yolcular.Count yolcu · @rezervasyon.KoltukDuzeni.Ad()</small>
+        </div>
+    </section>
+
+    <form asp-action="Index" method="post" id="odemeFormu" novalidate>
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3"></div>
+
+        <div class="row g-3 align-items-start">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h2 class="h6 mb-0">Kart Bilgileri</h2>
+                    </div>
+                    <div class="card-body">
+                        <p class="small text-secondary mb-3">
+                            Bu bir ödeme simülasyonudur, kartınızdan para çekilmez.
+                            Kart numaranız saklanmaz; yalnızca son 4 hanesi kaydedilir.
+                        </p>
+
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label asp-for="KartSahibi" class="form-label"></label>
+                                <input asp-for="KartSahibi" class="form-control" autocomplete="cc-name" placeholder="Ad Soyad" />
+                                <span asp-validation-for="KartSahibi" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-12">
+                                <label asp-for="KartNumarasi" class="form-label"></label>
+                                <input asp-for="KartNumarasi" class="form-control sb-kart-no" autocomplete="cc-number" placeholder="0000 0000 0000 0000" />
+                                <span asp-validation-for="KartNumarasi" class="text-danger small"></span>
+                                <div class="form-text">Deneme için: 4111 1111 1111 1111</div>
+                            </div>
+
+                            <div class="col-6 col-md-4">
+                                <label asp-for="SonKullanmaTarihi" class="form-label"></label>
+                                <input asp-for="SonKullanmaTarihi" class="form-control sb-kart-no" autocomplete="cc-exp" placeholder="AA/YY" />
+                                <span asp-validation-for="SonKullanmaTarihi" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-6 col-md-3">
+                                <label asp-for="Cvv" class="form-label"></label>
+                                @* type="password": hatalı gönderimde CVV sayfaya geri yazılmaz *@
+                                <input asp-for="Cvv" type="password" class="form-control sb-kart-no" autocomplete="cc-csc"
+                                       inputmode="numeric" maxlength="3" placeholder="•••" />
+                                <span asp-validation-for="Cvv" class="text-danger small"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 sb-secim-sutunu">
+                <div class="card border-0 shadow-sm sb-secim-ozeti">
+                    <div class="card-body">
+                        <h2 class="h6 mb-3">Bilet Özeti</h2>
+
+                        <ul class="list-unstyled small mb-3">
+                            @foreach (var yolcu in rezervasyon.Yolcular)
+                            {
+                                <li class="d-flex justify-content-between align-items-center gap-2 py-2 border-bottom">
+                                    <span>
+                                        <strong>Koltuk @yolcu.KoltukNo</strong> · @yolcu.YolcuAd @yolcu.YolcuSoyad
+                                        <span class="text-secondary">(@yolcu.Cinsiyet.Ad())</span>
+                                    </span>
+                                    <span class="text-nowrap">@rezervasyon.BirimFiyat.ToString("C2")</span>
+                                </li>
+                            }
+                        </ul>
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-secondary">Toplam Tutar</span>
+                            <strong class="fs-5">@rezervasyon.ToplamTutar.ToString("C2")</strong>
+                        </div>
+
+                        <button type="submit" id="odemeDugmesi" class="btn btn-primary w-100">Ödemeyi Tamamla</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/dogrulama.js" asp-append-version="true"></script>
+    <script src="~/js/odeme.js" asp-append-version="true"></script>
+}

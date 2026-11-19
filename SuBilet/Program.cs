@@ -24,6 +24,7 @@ builder.Services.AddSwaggerGen(options =>
     options.OperationFilter<JwtSwaggerFiltresi>();
 });
 builder.Services.AddScoped<KoltukDurumServisi>();
+builder.Services.AddScoped<BiletSatisServisi>();
 
 // Bağlantı dizesi depoda değil, User Secrets'ta tutulur (README > Kurulum).
 var baglantiDizesi = builder.Configuration.GetConnectionString("SuBiletDb")
