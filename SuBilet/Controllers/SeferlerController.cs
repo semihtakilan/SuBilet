@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Security.Claims;
+using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -245,9 +246,10 @@ public class SeferlerController : Controller
             return View(model);
         }
 
-        TempData["BekleyenRezervasyon"] = JsonSerializer.Serialize(model);
-        TempData["Mesaj"] = "Yolcu bilgileri doğrulandı. Ödeme adımına geçmeye hazır.";
-        return View(model);
+        var kullaniciId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        TempData[BekleyenRezervasyon.TempDataAnahtari] =
+            JsonSerializer.Serialize(new BekleyenRezervasyon(kullaniciId, model));
+        return RedirectToAction("Index", "Odeme");
     }
 
     private Task<Sefer?> SeferGetirAsync(int seferId) =>
