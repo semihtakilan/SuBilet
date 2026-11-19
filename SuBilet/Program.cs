@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +12,17 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition(JwtSwaggerFiltresi.SemaAdi, new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        Description = "/api/hesap/giris yanıtındaki token'ı yapıştırın (başına \"Bearer\" yazmadan)."
+    });
+    options.OperationFilter<JwtSwaggerFiltresi>();
+});
 builder.Services.AddScoped<KoltukDurumServisi>();
 
 // Bağlantı dizesi depoda değil, User Secrets'ta tutulur (README > Kurulum).
@@ -34,6 +46,44 @@ builder.Services.AddIdentity<Kullanici, IdentityRole>(options =>
     .AddErrorDescriber<TurkceIdentityHatalari>()
     .AddClaimsPrincipalFactory<KullaniciClaimsFactory>()
     .AddDefaultTokenProviders();
+
+// Mobil uygulama API'ye JWT ile girer; web sitesi çerezle çalışmaya devam eder.
+// Anahtar depoda değil, User Secrets'ta tutulur (README > Kurulum).
+var jwtBolumu = builder.Configuration.GetSection(JwtAyarlari.Bolum);
+var jwtAyarlari = jwtBolumu.Get<JwtAyarlari>() ?? new JwtAyarlari();
+var jwtAnahtariUretildi = false;
+if (jwtAyarlari.Anahtar.Length < 32)
+{
+    if (!builder.Environment.IsDevelopment())
+    {
+        throw new InvalidOperationException(
+            "'Jwt:Anahtar' en az 32 karakter olmalı. README'deki User Secrets adımını uygulayın.");
+    }
+
+    // Geliştirmede anahtar verilmemişse her açılışta yenisi üretilir;
+    // uygulama yeniden başlayınca eski tokenlar geçersiz olur.
+    jwtAyarlari.Anahtar = Convert.ToBase64String(RandomNumberGenerator.GetBytes(48));
+    jwtAnahtariUretildi = true;
+}
+builder.Services.Configure<JwtAyarlari>(jwtBolumu);
+builder.Services.PostConfigure<JwtAyarlari>(a => a.Anahtar = jwtAyarlari.Anahtar);
+builder.Services.AddScoped<TokenServisi>();
+
+builder.Services.AddAuthentication()
+    .AddJwtBearer(options =>
+    {
+        // Claim adları token'daki gibi kalsın (sub, name, role)
+        options.MapInboundClaims = false;
+        options.TokenValidationParameters = new()
+        {
+            ValidIssuer = jwtAyarlari.Yayinci,
+            ValidAudience = jwtAyarlari.Hedef,
+            IssuerSigningKey = jwtAyarlari.ImzaAnahtari(),
+            NameClaimType = TokenServisi.AdClaim,
+            RoleClaimType = TokenServisi.RolClaim,
+            ClockSkew = TimeSpan.FromMinutes(1)
+        };
+    });
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
@@ -60,6 +110,10 @@ builder.Services.AddControllersWithViews(options =>
 });
 
 var app = builder.Build();
+if (jwtAnahtariUretildi)
+{
+    app.Logger.LogWarning("'Jwt:Anahtar' verilmediği için geçici bir anahtar üretildi; uygulama yeniden başlayınca tokenlar geçersiz olur.");
+}
 if (app.Environment.IsDevelopment()) {
     app.UseSwagger();
     app.UseSwaggerUI();
