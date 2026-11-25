@@ -755,3 +755,9 @@ button.sb-koltuk-secili:not(:disabled):hover {
     box-shadow: 0 -.25rem 1rem rgba(15, 38, 67, .12) !important;
   }
 }
+
+/* Ödeme sayfası: kart numarası, son kullanma tarihi ve CVV rakamları hizalı görünür */
+.sb-kart-no {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .04em;
+}
